@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx runtime -->
+    <Reference Include="BepInEx.Core">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/core/BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="BepInEx.Unity.IL2CPP">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/core/BepInEx.Unity.IL2CPP.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/core/Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- IL2CPP BCL shim -->
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/Il2Cppmscorlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Game + Unity interop -->
+    <Reference Include="Assembly-CSharp">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Unity modules needed for Input / Physics / RaycastHit -->
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Photon (required because PlayerInteraction : MonoBehaviourPunCallbacks) -->
+    <Reference Include="PhotonUnityNetworking">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/PhotonUnityNetworking.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="PhotonRealtime">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/PhotonRealtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Photon3Unity3D">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/Photon3Unity3D.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
