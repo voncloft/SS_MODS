@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "wuok0+SY4Ac=",
+  "success": true,
+  "projectFilePath": "/home/von/Desktop/mod_making/mods/autorack/AutoStowBoxPlugin.csproj",
+  "expectedPackageFiles": [
+    "/home/von/.nuget/packages/microsoft.netcore.app.ref/6.0.36/microsoft.netcore.app.ref.6.0.36.nupkg.sha512",
+    "/home/von/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.36/microsoft.aspnetcore.app.ref.6.0.36.nupkg.sha512"
+  ],
+  "logs": []
+}

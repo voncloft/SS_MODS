@@ -1,0 +1,13 @@
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.csproj.AssemblyReference.cache
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.GeneratedMSBuildEditorConfig.editorconfig
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.AssemblyInfoInputs.cache
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.AssemblyInfo.cs
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.csproj.CoreCompileInputs.cache
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.sourcelink.json
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/bin/Debug/net6.0/RefillStoragePlugin.deps.json
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/bin/Debug/net6.0/RefillStoragePlugin.dll
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/bin/Debug/net6.0/RefillStoragePlugin.pdb
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.dll
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/refint/RefillStoragePlugin.dll
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/RefillStoragePlugin.pdb
+/home/von/Desktop/mod_making/mods/RefillStoragePlugin/obj/Debug/net6.0/ref/RefillStoragePlugin.dll
