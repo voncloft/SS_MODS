@@ -7,96 +7,44 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
-[BepInPlugin("von.autostowbox", "Auto Stow Box", "1.4.2")]
+[BepInPlugin("von.autostowbox", "Auto Stow Box", "1.6.0")]
 public class AutoStowBoxPlugin : BasePlugin
 {
     internal static ManualLogSource L;
     private Harmony _harmony;
-
-    private static FieldInfo[] BI_BoxLikeFields;
-
-    // delayed cleanup without coroutines
-    private static int _pendingEndFrames = 0;
-    private static BoxInteraction _pendingBI = null;
 
     public override void Load()
     {
         L = Log;
         _harmony = new Harmony("von.autostowbox");
         _harmony.PatchAll(typeof(Patches));
-
-        BI_BoxLikeFields = FindBoxLikeFieldsOnBoxInteraction();
-        L.LogInfo("[AUTO-STOW] Loaded 1.4.2 (Press L while holding a box)");
-        L.LogInfo("[AUTO-STOW] BoxInteraction fields cleared: " + (BI_BoxLikeFields == null ? 0 : BI_BoxLikeFields.Length));
+        L.LogInfo("[AUTO-STOW] Loaded 1.6.0 (EZDelivery-style end: m_Box=null + PlaceBoxToRack + InteractionEnd)");
     }
 
     private static class Patches
     {
         [HarmonyPatch(typeof(PlayerInteraction), "Update")]
         [HarmonyPostfix]
-        private static void PlayerInteraction_Update_Postfix()
+        private static void PlayerInteraction_Update_Postfix(PlayerInteraction __instance)
         {
-            // run delayed cleanup for a couple frames after stowing
-            if (_pendingEndFrames > 0)
-            {
-                _pendingEndFrames--;
-
-                try
-                {
-                    if (_pendingBI != null)
-                    {
-                        var pInteract = GetSingleton_Instance(typeof(PlayerInteraction)) ?? GetNoktaSingleton_Instance(typeof(PlayerInteraction));
-                        CallIfExists(pInteract, "InteractionEnd", new object[] { _pendingBI });
-                    }
-                }
-                catch { }
-
-                if (_pendingEndFrames <= 0)
-                    _pendingBI = null;
-            }
-
             if (Input.GetKeyDown(KeyCode.L))
-                TryStowHeldBox();
+                TryStowHeldBox(__instance);
         }
     }
 
-    private static FieldInfo[] FindBoxLikeFieldsOnBoxInteraction()
+    private static Box GetHeldBox(BoxInteraction bi)
     {
         try
         {
-            var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            var fis = typeof(BoxInteraction).GetFields(flags);
-            var list = new System.Collections.Generic.List<FieldInfo>();
-
-            for (int i = 0; i < fis.Length; i++)
-            {
-                var fi = fis[i];
-                if (fi == null) continue;
-
-                if (fi.FieldType == typeof(Box))
-                    list.Add(fi);
-
-                if (typeof(Il2CppObjectBase).IsAssignableFrom(fi.FieldType))
-                {
-                    var n = fi.Name.ToLowerInvariant();
-                    if (n.Contains("box") || n.Contains("m_box"))
-                        list.Add(fi);
-                }
-            }
-
-            return list.ToArray();
+            // if available, this is best
+            if (bi != null && bi.m_Box != null)
+                return bi.m_Box;
         }
-        catch
-        {
-            return null;
-        }
-    }
+        catch { }
 
-    private static Box TryGetHeldBox(BoxInteraction bi)
-    {
-        // 1) Try via Interaction.Interactable -> IL2CPP TryCast<Box>
         try
         {
+            // fallback: cast interactable
             var interactable = ((Interaction)bi).Interactable;
             if (interactable != null)
             {
@@ -110,59 +58,54 @@ public class AutoStowBoxPlugin : BasePlugin
         }
         catch { }
 
-        // 2) Try via known fields
-        try
-        {
-            if (BI_BoxLikeFields != null)
-            {
-                for (int i = 0; i < BI_BoxLikeFields.Length; i++)
-                {
-                    var fi = BI_BoxLikeFields[i];
-                    var v = fi.GetValue(bi);
-                    if (v == null) continue;
-
-                    var b = v as Box;
-                    if (b != null) return b;
-
-                    var raw = v as Il2CppObjectBase;
-                    if (raw != null)
-                    {
-                        var bb = raw.TryCast<Box>();
-                        if (bb != null) return bb;
-                    }
-                }
-            }
-        }
-        catch { }
-
         return null;
     }
 
-    private static void ClearHeldState(BoxInteraction bi)
+    private static bool Call0(object obj, string name)
     {
-        // Clear any box-like fields
+        if (obj == null) return false;
         try
         {
-            if (BI_BoxLikeFields != null)
+            var mi = obj.GetType().GetMethod(name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            if (mi == null) return false;
+            if (mi.GetParameters().Length != 0) return false;
+            mi.Invoke(obj, null);
+            return true;
+        }
+        catch { return false; }
+    }
+
+    private static bool CallInteraction(object obj, string name, Interaction interaction)
+    {
+        if (obj == null || interaction == null) return false;
+        try
+        {
+            var flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic;
+            var mis = obj.GetType().GetMethods(flags);
+
+            for (int i = 0; i < mis.Length; i++)
             {
-                for (int i = 0; i < BI_BoxLikeFields.Length; i++)
+                var mi = mis[i];
+                if (mi == null) continue;
+                if (mi.Name != name) continue;
+
+                var ps = mi.GetParameters();
+                if (ps == null || ps.Length != 1) continue;
+
+                // accept Interaction or base type
+                if (ps[0].ParameterType == typeof(Interaction) ||
+                    ps[0].ParameterType.IsAssignableFrom(typeof(Interaction)))
                 {
-                    try { BI_BoxLikeFields[i].SetValue(bi, null); } catch { }
+                    mi.Invoke(obj, new object[] { interaction });
+                    return true;
                 }
             }
         }
         catch { }
-
-        // Force cleanup paths
-        try
-        {
-            bi.enabled = false;
-            bi.enabled = true;
-        }
-        catch { }
+        return false;
     }
 
-    private static object GetSingleton_Instance(Type t) // Singleton<T>.get_Instance()
+    private static object GetSingleton_Instance(Type t)
     {
         try
         {
@@ -183,7 +126,7 @@ public class AutoStowBoxPlugin : BasePlugin
         return null;
     }
 
-    private static object GetNoktaSingleton_Instance(Type t) // NoktaSingleton<T>.Instance
+    private static object GetNoktaSingleton_Instance(Type t)
     {
         try
         {
@@ -196,58 +139,60 @@ public class AutoStowBoxPlugin : BasePlugin
         catch { return null; }
     }
 
-    private static void CallIfExists(object obj, string methodName, object[] args)
+    private static void ClearBoxInteractionField(BoxInteraction bi)
     {
-        if (obj == null) return;
+        // EZDelivery does Traverse.SetValue(null) on "m_Box".
+        // We can do it directly if field is accessible; otherwise reflection.
+        try { bi.m_Box = null; return; } catch { }
+
         try
         {
-            var mi = obj.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
-            if (mi != null) mi.Invoke(obj, args);
+            var fi = typeof(BoxInteraction).GetField("m_Box", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (fi != null) fi.SetValue(bi, null);
         }
         catch { }
     }
 
-    private static void TryStowHeldBox()
+    private static void RaiseInteractionWarning()
+    {
+        try
+        {
+            var warning = GetSingleton_Instance(typeof(WarningSystem)) ?? GetNoktaSingleton_Instance(typeof(WarningSystem));
+            if (warning != null)
+            {
+                var mi = warning.GetType().GetMethod("RaiseInteractionWarning", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+                if (mi != null) mi.Invoke(warning, new object[] { (InteractionWarningType)8, null });
+            }
+        }
+        catch { }
+    }
+
+    private static void TryStowHeldBox(PlayerInteraction pi)
     {
         try
         {
             var playerGO = GameObject.Find("Player");
-            if (playerGO == null)
-            {
-                L.LogWarning("[AUTO-STOW] Player GameObject not found.");
-                return;
-            }
+            if (playerGO == null) return;
 
             var bi = playerGO.GetComponent<BoxInteraction>();
-            if (bi == null)
-            {
-                L.LogWarning("[AUTO-STOW] BoxInteraction not found on Player.");
-                return;
-            }
+            if (bi == null) return;
 
-            if (!bi.enabled)
-            {
-                L.LogWarning("[AUTO-STOW] BoxInteraction disabled.");
-                return;
-            }
+            // EZDelivery note: BI must be enabled else "magic invisible boxes"
+            if (!bi.enabled) return;
 
-            var box = TryGetHeldBox(bi);
-            if (box == null)
-            {
-                L.LogWarning("[AUTO-STOW] Held Box not resolved.");
-                return;
-            }
+            var box = GetHeldBox(bi);
+            if (box == null) return;
+
+            // prevent repeated stow spam
+            try { if (box.Racked) return; } catch { }
 
             var product = box.Product;
-            if (product == null)
-            {
-                L.LogWarning("[AUTO-STOW] Box.Product is null.");
-                return;
-            }
+            if (product == null) return;
 
             int productId = product.ID;
             int boxId = box.BoxID;
 
+            // occupied check
             var emp = GetSingleton_Instance(typeof(EmployeeManager)) ?? GetNoktaSingleton_Instance(typeof(EmployeeManager));
             if (emp != null)
             {
@@ -257,7 +202,7 @@ public class AutoStowBoxPlugin : BasePlugin
                     bool occupied = (bool)miOcc.Invoke(emp, new object[] { productId });
                     if (occupied)
                     {
-                        RaiseInteractionWarning("Occupied by Restocker");
+                        RaiseInteractionWarning();
                         return;
                     }
                 }
@@ -265,11 +210,7 @@ public class AutoStowBoxPlugin : BasePlugin
 
             RackManager rm = null;
             try { rm = RackManager.Instance; } catch { }
-            if (rm == null)
-            {
-                L.LogWarning("[AUTO-STOW] RackManager.Instance is null.");
-                return;
-            }
+            if (rm == null) return;
 
             var restocker = new Restocker();
             var mgmt = new RestockerManagementData();
@@ -279,44 +220,36 @@ public class AutoStowBoxPlugin : BasePlugin
             var slot = rm.GetRackSlotThatHasSpaceFor(productId, boxId, restocker);
             if (slot == null)
             {
-                RaiseInteractionWarning("No rack space");
+                RaiseInteractionWarning();
                 return;
             }
 
-            // place like EZDelivery
+            // Place like EZDelivery
             box.CloseBox(false);
             slot.AddBox(boxId, box);
             box.Racked = true;
 
-            var holder = GetSingleton_Instance(typeof(PlayerObjectHolder)) ?? GetNoktaSingleton_Instance(typeof(PlayerObjectHolder));
-            var pInteract = GetSingleton_Instance(typeof(PlayerInteraction)) ?? GetNoktaSingleton_Instance(typeof(PlayerInteraction));
+            // 1) m_Box = null (critical)
+            ClearBoxInteractionField(bi);
 
-            ClearHeldState(bi);
+            // 2) RackManager.PlaceBoxToRack (if present)
+            // In EZDelivery it's Singleton.Instance.PlaceBoxToRack().
+            // In our environment, RackManager.Instance is the one we have.
+            bool placedSignal = Call0(rm, "PlaceBoxToRack") || Call0(rm, "PlaceHeldBoxToRack");
 
-            CallIfExists(holder, "PlaceBoxToRack", null);
-            CallIfExists(pInteract, "InteractionEnd", new object[] { bi });
+            // 3) PlayerInteraction.InteractionEnd((Interaction)bi) (critical store unlock)
+            bool ended = CallInteraction(pi, "InteractionEnd", (Interaction)bi)
+                      || CallInteraction(pi, "EndInteraction", (Interaction)bi);
 
-            // next-frame (actually next 2 frames) cleanup without coroutine
-            _pendingBI = bi;
-            _pendingEndFrames = 2;
+            // final cleanup (helps PocketBox not think you're still interacting)
+            try { pi.CurrentInteractable = null; } catch { }
 
-            L.LogInfo("[AUTO-STOW] Stowed ProductID=" + productId + " BoxID=" + boxId);
+            L.LogInfo("[AUTO-STOW] Stowed ProductID=" + productId + " BoxID=" + boxId +
+                      " (PlaceBoxToRack=" + placedSignal + ", InteractionEnd=" + ended + ")");
         }
         catch (Exception e)
         {
             L.LogWarning("[AUTO-STOW] Failed: " + e);
         }
-    }
-
-    private static void RaiseInteractionWarning(string msg)
-    {
-        try
-        {
-            var warning = GetSingleton_Instance(typeof(WarningSystem)) ?? GetNoktaSingleton_Instance(typeof(WarningSystem));
-            CallIfExists(warning, "RaiseInteractionWarning", new object[] { (InteractionWarningType)8, null });
-        }
-        catch { }
-
-        L.LogWarning("[AUTO-STOW] " + msg);
     }
 }
