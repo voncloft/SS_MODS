@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BepInEx runtime -->
+    <Reference Include="BepInEx.Core">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/core/BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="BepInEx.Unity.IL2CPP">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/core/BepInEx.Unity.IL2CPP.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/core/Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- IL2CPP BCL shim -->
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/Il2Cppmscorlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Game + Unity interop -->
+    <Reference Include="Assembly-CSharp">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.UI">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Unity.InputSystem">
+      <HintPath>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator/BepInEx/Interop/Unity.InputSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
