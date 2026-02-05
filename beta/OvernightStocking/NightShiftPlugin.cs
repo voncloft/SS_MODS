@@ -1,51 +1,44 @@
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
-using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using Lean.Pool;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 
-[BepInPlugin("von.nightshift.il2cpp", "NightShift (IL2CPP)", "2.2.2")]
+[BepInPlugin("von.nightshift.il2cpp", "NightShift (IL2CPP)", "2.3.2")]
 public class NightShiftPlugin : BasePlugin
 {
     internal static ManualLogSource L;
 
-    private static Harmony _harmony;
+    // Day detection
+    internal static bool Primed;
+    internal static int LastSeenDay = int.MinValue;
 
-    // Guards
-    private static bool _busy;
-    private static int _lastProcessedDay = int.MinValue;
+    // Run scheduling/guard
+    internal static bool Busy;
+    internal static int LastProcessedDay = int.MinValue;
 
-    // Day transition detector
-    internal static int _lastSeenDay = int.MinValue;
-    internal static bool _sawValidDay;
+    // Worker state
+    internal static NightShiftWorker Worker;
 
-    // Deferred run scheduling
-    internal static bool _pendingRun;
-    internal static float _pendingRunAt;
-    internal static string _pendingReason;
-
-    // Logging
-    private static string _logPath;
-    private static readonly object _logLock = new object();
-    private static int _runSeq = 0;
+    // Tunables
+    internal const float RUN_DELAY_SECONDS = 6.0f;
+    internal const int OPS_PER_FRAME = 200;
+    internal const int MAX_TOTAL_MS = 8000;
+    internal const int MAX_OUTER_LOOPS = 12;
 
     public override void Load()
     {
         L = Log;
 
-        _logPath = GetNightShiftLogPath();
-
         LogI("BOOT", "==================================================");
-        LogI("BOOT", "LOADED NightShift 2.2.2 @ " + DateTime.Now);
-        LogI("BOOT", "Mode: End-of-day only. Deferred run + pool-safe cleanup.");
-        LogI("BOOT", "LogFile: " + _logPath);
+        LogI("BOOT", "LOADED NightShift 2.3.2 @ " + DateTime.Now);
+        LogI("BOOT", "End-of-day only via DayTransition detector (NO Harmony hooks).");
+        LogI("BOOT", "Chunked worker in Update. Delay=" + RUN_DELAY_SECONDS + "s OPS_PER_FRAME=" + OPS_PER_FRAME);
         LogI("BOOT", "==================================================");
 
         try
@@ -55,349 +48,297 @@ public class NightShiftPlugin : BasePlugin
             UnityEngine.Object.DontDestroyOnLoad(go);
             go.hideFlags = HideFlags.HideAndDontSave;
             go.AddComponent<NightShiftRuntime>();
-            LogI("BOOT", "Runtime injected (heartbeat + day transition detector).");
+            LogI("BOOT", "Runtime injected.");
         }
         catch (Exception e)
         {
             LogE("BOOT", "Runtime inject failed: " + e);
         }
-
-        try
-        {
-            _harmony = new Harmony("von.nightshift.il2cpp");
-            _harmony.PatchAll(typeof(NightShiftPatches));
-            LogI("BOOT", "Harmony patches applied.");
-        }
-        catch (Exception e)
-        {
-            LogE("BOOT", "Harmony patch failed: " + e);
-        }
     }
 
-    private static string GetNightShiftLogPath()
-    {
-        try
-        {
-            // BepInEx sets this env var in many setups; fallback to current directory.
-            string bepinexRoot = Environment.GetEnvironmentVariable("BEPINEX_ROOT_PATH");
-            if (!string.IsNullOrEmpty(bepinexRoot) && Directory.Exists(bepinexRoot))
-                return Path.Combine(bepinexRoot, "NightShift.log");
-        }
-        catch { }
+    internal static void LogI(string tag, string msg) { try { L.LogInfo("[NS] [" + tag + "] " + msg); } catch { } }
+    internal static void LogW(string tag, string msg) { try { L.LogWarning("[NS] [" + tag + "] " + msg); } catch { } }
+    internal static void LogE(string tag, string msg) { try { L.LogError("[NS] [" + tag + "] " + msg); } catch { } }
 
-        // fallback: assume current working dir contains BepInEx folder
-        try
-        {
-            string cwd = Directory.GetCurrentDirectory();
-            string candidate = Path.Combine(cwd, "BepInEx", "NightShift.log");
-            return candidate;
-        }
-        catch { }
-
-        return "NightShift.log";
-    }
-
-    internal static void LogI(string tag, string msg)
-    {
-        try { L.LogInfo("[NS] [" + tag + "] " + msg); } catch { }
-        WriteFileLine("INFO", tag, msg);
-    }
-
-    internal static void LogW(string tag, string msg)
-    {
-        try { L.LogWarning("[NS] [" + tag + "] " + msg); } catch { }
-        WriteFileLine("WARN", tag, msg);
-    }
-
-    internal static void LogE(string tag, string msg)
-    {
-        try { L.LogError("[NS] [" + tag + "] " + msg); } catch { }
-        WriteFileLine("ERROR", tag, msg);
-    }
-
-    private static void WriteFileLine(string level, string tag, string msg)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(_logPath)) return;
-
-            lock (_logLock)
-            {
-                string line = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
-                    + " [" + level + "]"
-                    + " [" + tag + "] "
-                    + msg
-                    + Environment.NewLine;
-
-                Directory.CreateDirectory(Path.GetDirectoryName(_logPath));
-                File.AppendAllText(_logPath, line);
-            }
-        }
-        catch
-        {
-            // never crash on logging
-        }
-    }
-
-    internal static void ScheduleNightShift(string reason, float delaySeconds)
-    {
-        _pendingRun = true;
-        _pendingRunAt = Time.unscaledTime + delaySeconds;
-        _pendingReason = reason;
-
-        LogI("SCHED", "Scheduled reason=" + reason + " delay=" + delaySeconds + "s at t=" + _pendingRunAt);
-    }
-
-    internal static void TryRunScheduled()
-    {
-        if (!_pendingRun) return;
-        if (Time.unscaledTime < _pendingRunAt) return;
-
-        _pendingRun = false;
-        string reason = _pendingReason ?? "Scheduled";
-
-        RunNightShift(reason);
-    }
-
-    internal static void RunNightShift(string reason)
-    {
-        int runId = ++_runSeq;
-
-        LogI("RUN", "ENTER runId=" + runId + " reason=" + reason);
-
-        if (_busy)
-        {
-            LogW("RUN", "BLOCKED runId=" + runId + " already running.");
-            return;
-        }
-
-        _busy = true;
-
-        try
-        {
-            int day = SafeGetCurrentDay();
-            LogI("RUN", "STATE runId=" + runId + " currentDay=" + day + " lastProcessedDay=" + _lastProcessedDay);
-
-            if (day != -1 && day == _lastProcessedDay)
-            {
-                LogI("RUN", "SKIP runId=" + runId + " already processed this day.");
-                return;
-            }
-
-            if (day != -1)
-                _lastProcessedDay = day;
-
-            var swTotal = Stopwatch.StartNew();
-            LogI("RUN", "START runId=" + runId + " day=" + day);
-
-            // Step 0 snapshot
-            try
-            {
-                LogI("STEP0", "runId=" + runId
-                    + " RackManager=" + (RackManager.Instance != null)
-                    + " DisplayManager=" + (DisplayManager.Instance != null)
-                    + " InventoryManager=" + (InventoryManager.Instance != null)
-                    + " IDManager=" + (IDManager.Instance != null));
-            }
-            catch { }
-
-            // Step 1
-            LogI("STEP1", "BEGIN runId=" + runId);
-            var sw1 = Stopwatch.StartNew();
-            var restock = RestockDisplaysFromRacks(runId);
-            sw1.Stop();
-            LogI("STEP1", "END runId=" + runId
-                + " movedBoxes=" + restock.MovedBoxes
-                + " movedProducts=" + restock.MovedProducts
-                + " rebuiltSlots=" + restock.RebuiltDisplaySlots
-                + " scannedRackSlots=" + restock.ScannedRackSlots
-                + " scannedDisplaySlots=" + restock.ScannedDisplaySlots
-                + " loops=" + restock.OuterLoops
-                + " ms=" + sw1.ElapsedMilliseconds);
-
-            // Step 2
-            LogI("STEP2", "BEGIN runId=" + runId);
-            var sw2 = Stopwatch.StartNew();
-            var cleanup = CleanupEmptyBoxes_RackOnly(runId);
-            sw2.Stop();
-            LogI("STEP2", "END runId=" + runId
-                + " removedFromRackSlots=" + cleanup.RemovedFromRackSlots
-                + " ms=" + sw2.ElapsedMilliseconds);
-
-            swTotal.Stop();
-            LogI("RUN", "END runId=" + runId + " total_ms=" + swTotal.ElapsedMilliseconds);
-        }
-        catch (Exception e)
-        {
-            LogE("RUN", "CRASH reason=" + reason + " ex=" + e);
-        }
-        finally
-        {
-            _busy = false;
-            LogI("RUN", "EXIT runId=" + runId + " reason=" + reason);
-        }
-    }
-
-    private static int SafeGetCurrentDay()
+    internal static int SafeGetCurrentDay()
     {
         try
         {
             var dcm = DayCycleManager.Instance;
-            if (dcm != null)
-                return dcm.CurrentDay;
+            if (dcm != null) return dcm.CurrentDay;
         }
         catch { }
         return -1;
     }
 
-    private struct RestockResult
+    internal static void TryScheduleForDay(int newDay, string reason)
     {
-        public int ScannedRackSlots;
-        public int ScannedDisplaySlots;
-        public int MovedBoxes;
-        public int MovedProducts;
-        public int RebuiltDisplaySlots;
-        public int OuterLoops;
+        if (Busy)
+        {
+            LogW("SCHED", "Blocked (already running). newDay=" + newDay + " reason=" + reason);
+            return;
+        }
+
+        if (newDay == LastProcessedDay)
+        {
+            LogI("SCHED", "Skip (already processed). day=" + newDay + " reason=" + reason);
+            return;
+        }
+
+        if (Worker != null && Worker.State != NightShiftWorkerState.Idle)
+        {
+            LogW("SCHED", "Worker already active state=" + Worker.State + " day=" + newDay + " reason=" + reason);
+            return;
+        }
+
+        Worker = new NightShiftWorker(newDay, reason, Time.unscaledTime + RUN_DELAY_SECONDS);
+        LogI("SCHED", "Scheduled day=" + newDay + " reason=" + reason + " runAt=" + Worker.RunAt);
     }
 
-    private static void SafePoolDespawn(UnityEngine.Object obj)
+    internal static void SafePoolDespawnBox(Box box)
     {
-        if (obj == null) return;
+        if (box == null) return;
         try
         {
-            if (obj is Component c)
-            {
-                LeanPool.Despawn(c);
-                return;
-            }
-
-            if (obj is GameObject go)
-            {
-                LeanPool.Despawn(go);
-                return;
-            }
+            var go = ((Component)box).gameObject;
+            if (go != null) LeanPool.Despawn(go);
         }
         catch { }
-        // never Destroy pooled objects
+        // DO NOT Destroy pooled objects.
+    }
+}
+
+public enum NightShiftWorkerState
+{
+    Idle = 0,
+    WaitingDelay = 1,
+    Init = 2,
+    Restock = 3,
+    Cleanup = 4,
+    Done = 5,
+    Aborted = 6
+}
+
+public class NightShiftWorker
+{
+    public int Day;
+    public string Reason;
+    public float RunAt;
+
+    public NightShiftWorkerState State;
+
+    // managers
+    private RackManager _rackMgr;
+    private DisplayManager _dispMgr;
+    private InventoryManager _invMgr;
+    private IDManager _idMgr;
+
+    // step 1 data
+    private Dictionary<int, List<RackSlot>> _rackSlotsByProduct;
+    private List<int> _productIds;
+    private Il2CppSystem.Collections.Generic.List<DisplaySlot> _cachedSlots;
+
+    private int _outerLoop;
+    private bool _didWork;
+    private int _productIndex;
+    private int _displayIndex;
+
+    private int _currentProductId;
+    private ProductSO _currentProduct;
+    private int _targetCount;
+
+    // stats
+    public int ScannedRackSlots;
+    public int ScannedDisplaySlots;
+    public int MovedBoxes;
+    public int MovedProducts;
+    public bool StoppedByCap;
+
+    // cleanup state
+    private Rack[] _racks;
+    private int _rackIdx;
+    private int _slotIdx;
+    private int _boxIdx;
+    public int RemovedEmptyBoxes;
+
+    // timing
+    private Stopwatch _swTotal;
+
+    public NightShiftWorker(int day, string reason, float runAt)
+    {
+        Day = day;
+        Reason = reason;
+        RunAt = runAt;
+        State = NightShiftWorkerState.WaitingDelay;
     }
 
-    private static RestockResult RestockDisplaysFromRacks(int runId)
+    public void Tick(int opsBudget)
     {
-        var res = new RestockResult();
-
-        var rackMgr = RackManager.Instance;
-        var dispMgr = DisplayManager.Instance;
-        var invMgr = InventoryManager.Instance;
-        var idMgr = IDManager.Instance;
-
-        if (rackMgr == null || dispMgr == null || invMgr == null || idMgr == null)
+        if (State == NightShiftWorkerState.WaitingDelay)
         {
-            LogW("STEP1", "ABORT runId=" + runId + " missing managers.");
-            return res;
+            if (Time.unscaledTime < RunAt) return;
+            State = NightShiftWorkerState.Init;
         }
 
-        // Copy rack slots into managed dictionary; filter y==10 racks
-        var rackSlotsByProduct = new Dictionary<int, List<RackSlot>>();
-        try
+        if (State == NightShiftWorkerState.Init)
         {
-            foreach (var kv in rackMgr.RackSlots)
+            NightShiftPlugin.Busy = true;
+
+            _rackMgr = RackManager.Instance;
+            _dispMgr = DisplayManager.Instance;
+            _invMgr = InventoryManager.Instance;
+            _idMgr = IDManager.Instance;
+
+            _swTotal = Stopwatch.StartNew();
+
+            NightShiftPlugin.LogI("RUN", "ENTER day=" + Day + " reason=" + Reason);
+            NightShiftPlugin.LogI("STEP0", "Snapshot RackManager=" + (_rackMgr != null)
+                + " DisplayManager=" + (_dispMgr != null)
+                + " InventoryManager=" + (_invMgr != null)
+                + " IDManager=" + (_idMgr != null));
+
+            if (_rackMgr == null || _dispMgr == null || _invMgr == null || _idMgr == null)
             {
-                int pid = kv.Key;
-                var list = kv.Value;
-                var copy = new List<RackSlot>();
-
-                if (list != null)
-                {
-                    foreach (var s in list)
-                    {
-                        if (s == null) continue;
-                        try
-                        {
-                            var rack = s.m_Rack;
-                            if (rack == null) continue;
-                            float y = ((Component)rack).transform.position.y;
-                            if (y == 10f) continue;
-                        }
-                        catch { continue; }
-
-                        copy.Add(s);
-                    }
-                }
-
-                rackSlotsByProduct[pid] = copy;
+                NightShiftPlugin.LogW("RUN", "ABORT missing managers.");
+                State = NightShiftWorkerState.Aborted;
+                return;
             }
-        }
-        catch (Exception e)
-        {
-            LogW("STEP1", "ABORT runId=" + runId + " rack copy failed: " + e);
-            return res;
-        }
 
-        int rackSlotCount = 0;
-        foreach (var kv in rackSlotsByProduct)
-            rackSlotCount += kv.Value != null ? kv.Value.Count : 0;
-        res.ScannedRackSlots = rackSlotCount;
+            _rackSlotsByProduct = new Dictionary<int, List<RackSlot>>();
 
-        var cachedSlots = new Il2CppSystem.Collections.Generic.List<DisplaySlot>();
-
-        bool didWork = true;
-
-        while (didWork)
-        {
-            res.OuterLoops++;
-            didWork = false;
-
-            List<int> productIds;
             try
             {
-                productIds = ((Dictionary<int, int>)(object)invMgr.Products).Keys.ToList();
-            }
-            catch
-            {
-                productIds = rackSlotsByProduct.Keys.Where(x => x != 0).ToList();
-            }
-
-            foreach (int productId in productIds)
-            {
-                if (productId == 0) continue;
-
-                ProductSO product;
-                try { product = idMgr.ProductSO(productId); }
-                catch { continue; }
-                if (product == null) continue;
-
-                try { cachedSlots.Clear(); } catch { }
-
-                try
+                foreach (var kv in _rackMgr.RackSlots)
                 {
-                    // Your build: returns int, fills cachedSlots
-                    dispMgr.GetDisplaySlots(productId, false, cachedSlots);
-                }
-                catch
-                {
-                    continue;
-                }
+                    int pid = kv.Key;
+                    var list = kv.Value;
+                    var copy = new List<RackSlot>();
 
-                if (cachedSlots.Count <= 0)
-                    continue;
-
-                int target = product.GridLayoutInStorage.productCount;
-
-                for (int ds = 0; ds < cachedSlots.Count; ds++)
-                {
-                    var slot = cachedSlots[ds];
-                    if (slot == null) continue;
-
-                    res.ScannedDisplaySlots++;
-
-                    while (slot.m_Products != null && slot.m_Products.Count < target)
+                    if (list != null)
                     {
-                        int need = target - slot.m_Products.Count;
+                        foreach (var s in list)
+                        {
+                            if (s == null) continue;
+                            try
+                            {
+                                var rack = s.m_Rack;
+                                if (rack == null) continue;
+                                float y = ((Component)rack).transform.position.y;
+                                if (y == 10f) continue;
+                            }
+                            catch { continue; }
 
-                        if (!rackSlotsByProduct.TryGetValue(productId, out var racksForProduct) ||
-                            racksForProduct == null || racksForProduct.Count == 0)
-                            break;
+                            copy.Add(s);
+                        }
+                    }
 
+                    _rackSlotsByProduct[pid] = copy;
+                }
+            }
+            catch (Exception e)
+            {
+                NightShiftPlugin.LogW("RUN", "ABORT rack copy failed ex=" + e);
+                State = NightShiftWorkerState.Aborted;
+                return;
+            }
+
+            int rackSlotCount = 0;
+            foreach (var kv in _rackSlotsByProduct)
+                rackSlotCount += kv.Value != null ? kv.Value.Count : 0;
+            ScannedRackSlots = rackSlotCount;
+
+            try { _productIds = ((Dictionary<int, int>)(object)_invMgr.Products).Keys.ToList(); }
+            catch { _productIds = _rackSlotsByProduct.Keys.Where(x => x != 0).ToList(); }
+
+            _cachedSlots = new Il2CppSystem.Collections.Generic.List<DisplaySlot>();
+
+            _outerLoop = 0;
+            _didWork = true;
+            _productIndex = 0;
+            _displayIndex = 0;
+
+            NightShiftPlugin.LogI("STEP1", "BEGIN day=" + Day + " products=" + _productIds.Count + " rackSlots=" + ScannedRackSlots);
+
+            State = NightShiftWorkerState.Restock;
+        }
+
+        if (State == NightShiftWorkerState.Restock)
+        {
+            int ops = 0;
+
+            while (ops < opsBudget)
+            {
+                if (_swTotal.ElapsedMilliseconds > NightShiftPlugin.MAX_TOTAL_MS)
+                {
+                    StoppedByCap = true;
+                    NightShiftPlugin.LogW("STEP1", "STOP cap MAX_TOTAL_MS=" + NightShiftPlugin.MAX_TOTAL_MS);
+                    State = NightShiftWorkerState.Cleanup;
+                    break;
+                }
+
+                if (_outerLoop > NightShiftPlugin.MAX_OUTER_LOOPS)
+                {
+                    StoppedByCap = true;
+                    NightShiftPlugin.LogW("STEP1", "STOP cap MAX_OUTER_LOOPS=" + NightShiftPlugin.MAX_OUTER_LOOPS);
+                    State = NightShiftWorkerState.Cleanup;
+                    break;
+                }
+
+                if (_productIndex >= _productIds.Count)
+                {
+                    if (!_didWork)
+                    {
+                        NightShiftPlugin.LogI("STEP1", "END movedBoxes=" + MovedBoxes
+                            + " movedProducts=" + MovedProducts
+                            + " scannedDisplaySlots=" + ScannedDisplaySlots
+                            + " loops=" + _outerLoop
+                            + " stoppedByCap=" + StoppedByCap);
+                        State = NightShiftWorkerState.Cleanup;
+                        break;
+                    }
+
+                    _outerLoop++;
+                    _didWork = false;
+                    _productIndex = 0;
+                    _displayIndex = 0;
+                }
+
+                _currentProductId = _productIds[_productIndex];
+                if (_currentProductId == 0) { _productIndex++; continue; }
+
+                _currentProduct = null;
+                try { _currentProduct = _idMgr.ProductSO(_currentProductId); } catch { }
+                if (_currentProduct == null) { _productIndex++; continue; }
+
+                if (_displayIndex == 0)
+                {
+                    try { _cachedSlots.Clear(); } catch { }
+                    try { _dispMgr.GetDisplaySlots(_currentProductId, false, _cachedSlots); }
+                    catch { _productIndex++; continue; }
+
+                    if (_cachedSlots.Count <= 0) { _productIndex++; continue; }
+                    _targetCount = _currentProduct.GridLayoutInStorage.productCount;
+                }
+
+                if (_displayIndex >= _cachedSlots.Count)
+                {
+                    _productIndex++;
+                    _displayIndex = 0;
+                    continue;
+                }
+
+                var slot = _cachedSlots[_displayIndex];
+                if (slot == null) { _displayIndex++; continue; }
+
+                ScannedDisplaySlots++;
+
+                if (slot.m_Products != null && slot.m_Products.Count < _targetCount)
+                {
+                    int need = _targetCount - slot.m_Products.Count;
+
+                    if (_rackSlotsByProduct.TryGetValue(_currentProductId, out var racksForProduct) &&
+                        racksForProduct != null && racksForProduct.Count > 0)
+                    {
                         RackSlot rackSlot = null;
                         Box box = null;
 
@@ -418,151 +359,173 @@ public class NightShiftPlugin : BasePlugin
                             box = last;
                         }
 
-                        if (rackSlot == null || box == null)
-                            break;
-
-                        didWork = true;
-
-                        int movedNow = 0;
-
-                        try
+                        if (rackSlot != null && box != null)
                         {
-                            if (box.m_Data.ProductCount <= need)
+                            _didWork = true;
+
+                            try
                             {
-                                int take = box.m_Data.ProductCount;
+                                if (box.m_Data.ProductCount <= need)
+                                {
+                                    int take = box.m_Data.ProductCount;
 
-                                var data = slot.Data;
-                                data.FirstItemCount = data.FirstItemCount + take;
+                                    var data = slot.Data;
+                                    data.FirstItemCount = data.FirstItemCount + take;
 
-                                slot.SpawnProduct(productId, take);
-                                movedNow = take;
+                                    slot.SpawnProduct(_currentProductId, take);
 
-                                rackSlot.TakeBoxFromRack();
-                                invMgr.RemoveBox(box.Data);
+                                    rackSlot.TakeBoxFromRack();
+                                    _invMgr.RemoveBox(box.Data);
 
-                                SafePoolDespawn((UnityEngine.Object)(object)((Component)box).gameObject);
+                                    NightShiftPlugin.SafePoolDespawnBox(box);
 
-                                res.MovedBoxes++;
+                                    MovedBoxes++;
+                                    MovedProducts += take;
+                                }
+                                else
+                                {
+                                    int take = need;
+
+                                    var data2 = slot.Data;
+                                    data2.FirstItemCount = data2.FirstItemCount + take;
+
+                                    slot.SpawnProduct(_currentProductId, take);
+
+                                    try { box.DespawnProducts(); } catch { }
+                                    box.m_Data.ProductCount -= take;
+
+                                    MovedProducts += take;
+                                }
+
+                                try { rackSlot.SetLabel(); } catch { }
+                                try { slot.SetLabel(); } catch { }
+                                try { slot.SetPriceTag(); } catch { }
                             }
-                            else
+                            catch (Exception e)
                             {
-                                int take = need;
-
-                                var data2 = slot.Data;
-                                data2.FirstItemCount = data2.FirstItemCount + take;
-
-                                slot.SpawnProduct(productId, take);
-                                movedNow = take;
-
-                                try { box.DespawnProducts(); } catch { }
-                                box.m_Data.ProductCount -= take;
-                            }
-
-                            res.MovedProducts += movedNow;
-                        }
-                        catch (Exception e)
-                        {
-                            LogW("STEP1", "runId=" + runId + " move failed productId=" + productId + " ex=" + e);
-                            break;
-                        }
-
-                        try { rackSlot.SetLabel(); } catch { }
-                    }
-
-                    // Visual rebuild
-                    try
-                    {
-                        int count = slot.m_Products.Count;
-
-                        foreach (var p in slot.m_Products)
-                        {
-                            if (!((UnityEngine.Object)(object)p == (UnityEngine.Object)null))
-                            {
-                                SafePoolDespawn((UnityEngine.Object)(object)((Component)(object)p));
+                                NightShiftPlugin.LogW("STEP1", "move failed pid=" + _currentProductId + " ex=" + e);
                             }
                         }
-
-                        slot.m_Products.Clear();
-
-                        for (int j = 0; j < count; j++)
-                        {
-                            var pso = idMgr.ProductSO(productId);
-                            if (pso == null) break;
-
-                            Product spawned = LeanPool.Spawn<Product>(pso.ProductPrefab, ((Component)slot).transform, false);
-                            ((Component)spawned).transform.localPosition = ItemPosition.GetPosition(pso.GridLayoutInStorage, j);
-                            ((Component)spawned).transform.localRotation = Quaternion.Euler(pso.GridLayoutInStorage.productAngles);
-                            ((Component)spawned).transform.localScale = Vector3.one * pso.GridLayoutInStorage.scaleMultiplier;
-
-                            slot.m_Products.Add(spawned);
-                        }
-
-                        slot.SetLabel();
-                        slot.SetPriceTag();
-
-                        res.RebuiltDisplaySlots++;
-                    }
-                    catch (Exception e)
-                    {
-                        LogW("STEP1", "runId=" + runId + " rebuild visuals failed ex=" + e);
                     }
                 }
+
+                _displayIndex++;
+                ops++;
             }
+
+            return;
         }
 
-        return res;
-    }
-
-    private struct CleanupResult
-    {
-        public int RemovedFromRackSlots;
-    }
-
-    private static CleanupResult CleanupEmptyBoxes_RackOnly(int runId)
-    {
-        var res = new CleanupResult();
-
-        var invMgr = InventoryManager.Instance;
-        if (invMgr == null)
+        if (State == NightShiftWorkerState.Cleanup)
         {
-            LogW("STEP2", "ABORT runId=" + runId + " InventoryManager missing.");
-            return res;
-        }
-
-        try
-        {
-            foreach (var rack in Resources.FindObjectsOfTypeAll<Rack>())
+            if (_racks == null)
             {
-                if (rack == null || rack.RackSlots == null) continue;
+                NightShiftPlugin.LogI("STEP2", "BEGIN");
+                try { _racks = Resources.FindObjectsOfTypeAll<Rack>(); }
+                catch { _racks = new Rack[0]; }
 
-                foreach (var slot in rack.RackSlots)
-                {
-                    if (slot == null || slot.m_Boxes == null || slot.m_Boxes.Count == 0) continue;
-
-                    for (int i = slot.m_Boxes.Count - 1; i >= 0; i--)
-                    {
-                        var box = slot.m_Boxes[i];
-                        if (box == null || box.m_Data == null) continue;
-                        if (box.m_Data.ProductCount > 0) continue;
-
-                        try { slot.m_Boxes.RemoveAt(i); } catch { }
-                        try { invMgr.RemoveBox(box.Data); } catch { }
-
-                        SafePoolDespawn((UnityEngine.Object)(object)((Component)box).gameObject);
-
-                        res.RemovedFromRackSlots++;
-                    }
-
-                    try { slot.SetLabel(); } catch { }
-                }
+                _rackIdx = 0;
+                _slotIdx = 0;
+                _boxIdx = -1;
             }
-        }
-        catch (Exception e)
-        {
-            LogW("STEP2", "runId=" + runId + " rack cleanup failed ex=" + e);
+
+            int ops = 0;
+
+            while (ops < opsBudget)
+            {
+                if (_swTotal.ElapsedMilliseconds > NightShiftPlugin.MAX_TOTAL_MS)
+                {
+                    NightShiftPlugin.LogW("STEP2", "STOP cap MAX_TOTAL_MS=" + NightShiftPlugin.MAX_TOTAL_MS);
+                    State = NightShiftWorkerState.Done;
+                    break;
+                }
+
+                if (_rackIdx >= _racks.Length)
+                {
+                    NightShiftPlugin.LogI("STEP2", "END removedEmptyBoxes=" + RemovedEmptyBoxes);
+                    State = NightShiftWorkerState.Done;
+                    break;
+                }
+
+                var rack = _racks[_rackIdx];
+                if (rack == null || rack.RackSlots == null)
+                {
+                    _rackIdx++;
+                    _slotIdx = 0;
+                    _boxIdx = -1;
+                    continue;
+                }
+
+                // RackSlots is List<RackSlot> in your build
+                if (_slotIdx >= rack.RackSlots.Count)
+                {
+                    _rackIdx++;
+                    _slotIdx = 0;
+                    _boxIdx = -1;
+                    continue;
+                }
+
+                var slot = rack.RackSlots[_slotIdx];
+                if (slot == null || slot.m_Boxes == null || slot.m_Boxes.Count == 0)
+                {
+                    _slotIdx++;
+                    _boxIdx = -1;
+                    continue;
+                }
+
+                if (_boxIdx == -1)
+                    _boxIdx = slot.m_Boxes.Count - 1;
+
+                if (_boxIdx < 0)
+                {
+                    try { slot.SetLabel(); } catch { }
+                    _slotIdx++;
+                    _boxIdx = -1;
+                    continue;
+                }
+
+                var box = slot.m_Boxes[_boxIdx];
+                _boxIdx--;
+
+                if (box == null || box.m_Data == null) { ops++; continue; }
+                if (box.m_Data.ProductCount > 0) { ops++; continue; }
+
+                try { slot.m_Boxes.Remove(box); } catch { }
+                try { _invMgr.RemoveBox(box.Data); } catch { }
+
+                NightShiftPlugin.SafePoolDespawnBox(box);
+
+                RemovedEmptyBoxes++;
+                ops++;
+            }
+
+            return;
         }
 
-        return res;
+        if (State == NightShiftWorkerState.Done || State == NightShiftWorkerState.Aborted)
+        {
+            _swTotal.Stop();
+
+            if (State == NightShiftWorkerState.Done)
+            {
+                NightShiftPlugin.LastProcessedDay = Day;
+                NightShiftPlugin.LogI("RUN", "END day=" + Day + " reason=" + Reason
+                    + " total_ms=" + _swTotal.ElapsedMilliseconds
+                    + " movedBoxes=" + MovedBoxes
+                    + " movedProducts=" + MovedProducts
+                    + " removedEmpty=" + RemovedEmptyBoxes
+                    + " stoppedByCap=" + StoppedByCap);
+            }
+            else
+            {
+                NightShiftPlugin.LogW("RUN", "ABORTED day=" + Day + " reason=" + Reason
+                    + " total_ms=" + _swTotal.ElapsedMilliseconds);
+            }
+
+            NightShiftPlugin.Busy = false;
+            State = NightShiftWorkerState.Idle;
+            return;
+        }
     }
 }
 
@@ -573,7 +536,7 @@ public class NightShiftRuntime : MonoBehaviour
 
     private void Start()
     {
-        NightShiftPlugin.LogI("RT", "Start. Heartbeat 10s. DayCheck 0.5s. Deferred run 2.0s.");
+        NightShiftPlugin.LogI("RT", "Start. Heartbeat 10s. DayCheck 0.5s.");
         _nextBeat = Time.unscaledTime + 10f;
         _nextDayCheck = Time.unscaledTime + 0.5f;
     }
@@ -586,80 +549,35 @@ public class NightShiftRuntime : MonoBehaviour
             NightShiftPlugin.LogI("RT", "Heartbeat t=" + Time.unscaledTime);
         }
 
-        NightShiftPlugin.TryRunScheduled();
+        if (NightShiftPlugin.Worker != null && NightShiftPlugin.Worker.State != NightShiftWorkerState.Idle)
+        {
+            NightShiftPlugin.Worker.Tick(NightShiftPlugin.OPS_PER_FRAME);
+        }
 
         if (Time.unscaledTime >= _nextDayCheck)
         {
             _nextDayCheck = Time.unscaledTime + 0.5f;
 
-            int day = -1;
-            try
+            int day = NightShiftPlugin.SafeGetCurrentDay();
+            if (day < 0) return;
+
+            if (!NightShiftPlugin.Primed)
             {
-                var dcm = DayCycleManager.Instance;
-                if (dcm != null) day = dcm.CurrentDay;
+                NightShiftPlugin.Primed = true;
+                NightShiftPlugin.LastSeenDay = day;
+                NightShiftPlugin.LogI("DAY", "Primed day=" + day);
+                return;
             }
-            catch { }
 
-            if (day >= 0)
+            if (day != NightShiftPlugin.LastSeenDay)
             {
-                if (!NightShiftPlugin._sawValidDay)
-                {
-                    NightShiftPlugin._sawValidDay = true;
-                    NightShiftPlugin._lastSeenDay = day;
-                    NightShiftPlugin.LogI("DAY", "Detector primed day=" + day);
-                }
-                else if (day != NightShiftPlugin._lastSeenDay)
-                {
-                    int prev = NightShiftPlugin._lastSeenDay;
-                    NightShiftPlugin._lastSeenDay = day;
+                int prev = NightShiftPlugin.LastSeenDay;
+                NightShiftPlugin.LastSeenDay = day;
 
-                    NightShiftPlugin.LogI("DAY", "HOOK HIT DayTransition " + prev + " -> " + day);
-                    NightShiftPlugin.ScheduleNightShift("DayTransitionDetector", 2.0f);
-                }
+                NightShiftPlugin.LogI("DAY", "Day changed " + prev + " -> " + day);
+
+                NightShiftPlugin.TryScheduleForDay(day, "DayTransitionDetector");
             }
-        }
-    }
-}
-
-public static class NightShiftPatches
-{
-    [HarmonyPatch(typeof(DayCycleManager), nameof(DayCycleManager.FinishTheDay))]
-    public static class DayCycleManager_FinishTheDay_Patch
-    {
-        public static void Prefix()
-        {
-            NightShiftPlugin.LogI("HOOK", "HIT DayCycleManager.FinishTheDay");
-            NightShiftPlugin.ScheduleNightShift("DayCycleManager.FinishTheDay", 2.0f);
-        }
-    }
-
-    [HarmonyPatch(typeof(NextDayInteraction), nameof(NextDayInteraction.FinishTheDayOrder))]
-    public static class NextDayInteraction_FinishTheDayOrder_Patch
-    {
-        public static void Prefix()
-        {
-            NightShiftPlugin.LogI("HOOK", "HIT NextDayInteraction.FinishTheDayOrder");
-            NightShiftPlugin.ScheduleNightShift("NextDayInteraction.FinishTheDayOrder", 2.0f);
-        }
-    }
-
-    [HarmonyPatch(typeof(DayCycleManager), "EndDay")]
-    public static class DayCycleManager_EndDay_Patch
-    {
-        public static void Prefix()
-        {
-            NightShiftPlugin.LogI("HOOK", "HIT DayCycleManager.EndDay");
-            NightShiftPlugin.ScheduleNightShift("DayCycleManager.EndDay", 2.0f);
-        }
-    }
-
-    [HarmonyPatch(typeof(DayCycleManager), "StartNewDay")]
-    public static class DayCycleManager_StartNewDay_Patch
-    {
-        public static void Prefix()
-        {
-            NightShiftPlugin.LogI("HOOK", "HIT DayCycleManager.StartNewDay");
-            NightShiftPlugin.ScheduleNightShift("DayCycleManager.StartNewDay", 2.0f);
         }
     }
 }
