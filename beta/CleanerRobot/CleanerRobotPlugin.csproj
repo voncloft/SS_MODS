@@ -1,0 +1,119 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputType>Library</OutputType>
+
+    <AssemblyName>CleanerRobotPlugin</AssemblyName>
+    <RootNamespace>CleanerRobotPlugin</RootNamespace>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+
+    <Deterministic>true</Deterministic>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GameDir>/mnt/Storage/SteamLibrary/steamapps/common/Supermarket Simulator</GameDir>
+
+    <!-- YOU SAID YOU USE THIS -->
+    <InteropDir>$(GameDir)/BepInEx/Interop</InteropDir>
+
+    <BepInExCoreDir>$(GameDir)/BepInEx/core</BepInExCoreDir>
+  </PropertyGroup>
+
+  <Target Name="FailIfPathsWrong" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(InteropDir)')" Text="Interop folder not found: $(InteropDir)" />
+    <Error Condition="!Exists('$(BepInExCoreDir)')" Text="BepInEx core folder not found: $(BepInExCoreDir)" />
+  </Target>
+
+  <ItemGroup>
+    <!-- BepInEx / Harmony -->
+    <Reference Include="BepInEx.Core">
+      <HintPath>$(BepInExCoreDir)/BepInEx.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="BepInEx.Unity.IL2CPP">
+      <HintPath>$(BepInExCoreDir)/BepInEx.Unity.IL2CPP.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="HarmonyLib">
+      <HintPath>$(BepInExCoreDir)/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(BepInExCoreDir)/Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- IL2CPP mscorlib + Unity live in Interop -->
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(InteropDir)/Il2Cppmscorlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine">
+      <HintPath>$(InteropDir)/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(InteropDir)/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Only include if present (prevents MSB3245) -->
+    <Reference Include="UnityEngine.SceneManagementModule" Condition="Exists('$(InteropDir)/UnityEngine.SceneManagementModule.dll')">
+      <HintPath>$(InteropDir)/UnityEngine.SceneManagementModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.InputLegacyModule" Condition="Exists('$(InteropDir)/UnityEngine.InputLegacyModule.dll')">
+      <HintPath>$(InteropDir)/UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.PhysicsModule" Condition="Exists('$(InteropDir)/UnityEngine.PhysicsModule.dll')">
+      <HintPath>$(InteropDir)/UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.AudioModule" Condition="Exists('$(InteropDir)/UnityEngine.AudioModule.dll')">
+      <HintPath>$(InteropDir)/UnityEngine.AudioModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Optional (only if your code uses them) -->
+    <Reference Include="UnityEngine.UI" Condition="Exists('$(InteropDir)/UnityEngine.UI.dll')">
+      <HintPath>$(InteropDir)/UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="UnityEngine.UIModule" Condition="Exists('$(InteropDir)/UnityEngine.UIModule.dll')">
+      <HintPath>$(InteropDir)/UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Unity.TextMeshPro" Condition="Exists('$(InteropDir)/Unity.TextMeshPro.dll')">
+      <HintPath>$(InteropDir)/Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Newtonsoft.Json" Condition="Exists('$(InteropDir)/Newtonsoft.Json.dll')">
+      <HintPath>$(InteropDir)/Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="Assembly-CSharp" Condition="Exists('$(InteropDir)/Assembly-CSharp.dll')">
+      <HintPath>$(InteropDir)/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+  </ItemGroup>
+
+</Project>
