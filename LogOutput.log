@@ -1,0 +1,724 @@
+[Message: Preloader] BepInEx 6.0.0-be.752 - Supermarket Simulator (11/14/2025 3:40:54 PM)
+[Message: Preloader] Built from commit dd0655fe9d7473b18b0af759448adaf272878fcf
+[Info   :   BepInEx] System platform: Windows 10 (Wine 10.0) 64-bit
+[Info   :   BepInEx] Process bitness: 64-bit (x64)
+[Info   :   BepInEx] Running under Unity 6000.1.17f1
+[Info   :   BepInEx] Runtime version: 6.0.7
+[Info   :   BepInEx] Runtime information: .NET 6.0.7
+[Info   :AssemblyPatcher] Loaded 1 patcher type from [BepInExConfigManager.Il2Cpp.Patcher 1.0.0.0]
+[Info   :AssemblyPatcher] Loaded 1 patcher type from [Tobey.BepInEx.Timestamp 2.0.0.0]
+[Info   : Preloader] 2 patcher plugins loaded
+[Info   : Preloader] 2 assemblies discovered
+[Message:AssemblyPatcher] Executing 0 patch(es)
+[Message:   BepInEx] Chainloader initialized
+[Message: Timestamp] It is currently Fri, 06 Feb 2026 20:20:52 GMT according to time.cloudflare.com
+[Warning:Il2CppInterop] Class::Init signatures have been exhausted, using a substitute!
+[Info   :Il2CppInterop] Registered mono type Il2CppInterop.Runtime.DelegateSupport+Il2CppToMonoDelegateReference in il2cpp domain
+[Info   :   BepInEx] 16 plugins to load
+[Info   :   BepInEx] Loading [Auto Bill Payment 1.0.1]
+[Info   :Il2CppInterop] Registered mono type AutoBillPaymentRunner in il2cpp domain
+[Info   :   BepInEx] Loading [Better Lights 1.4.0]
+[Info   :Il2CppInterop] Registered mono type BetterLights.BetterInteriorLightsManager in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type BetterLights.BetterStreetLightManager in il2cpp domain
+[Info   :   BepInEx] Loading [Card Only (IL2CPP) 2.0.0]
+[Info   :Card Only (IL2CPP)] Card Only (IL2CPP) carregado. Aplicando patches...
+[Info   :   BepInEx] Loading [Fast Cashier (Speed+Trace) 3.3.0]
+[Warning:FastCashier(SpeedTrace)] === FastCashier(SpeedTrace) LOADED ===
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Unable to load one or more of the requested types.
+Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+   at System.Reflection.RuntimeModule.GetTypes(RuntimeModule module)
+   at System.Reflection.Assembly.GetTypes()
+   at HarmonyLib.AccessTools.GetTypesFromAssembly(Assembly assembly)
+System.TypeLoadException: Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+System.TypeLoadException: Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+[Warning:FastCashier(SpeedTrace)] [PatchOne] Cashier.Start patched=1
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Unable to load one or more of the requested types.
+Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+   at System.Reflection.RuntimeModule.GetTypes(RuntimeModule module)
+   at System.Reflection.Assembly.GetTypes()
+   at HarmonyLib.AccessTools.GetTypesFromAssembly(Assembly assembly)
+System.TypeLoadException: Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+System.TypeLoadException: Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+[Warning:FastCashier(SpeedTrace)] [PatchOne] Cashier.get_CurrentScanSpeed patched=1
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Unable to load one or more of the requested types.
+Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+   at System.Reflection.RuntimeModule.GetTypes(RuntimeModule module)
+   at System.Reflection.Assembly.GetTypes()
+   at HarmonyLib.AccessTools.GetTypesFromAssembly(Assembly assembly)
+System.TypeLoadException: Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+System.TypeLoadException: Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+[Warning:FastCashier(SpeedTrace)] [PatchOne] ScanAnimationHandler.set_ScanSpeed patched=1
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Unable to load one or more of the requested types.
+Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+   at System.Reflection.RuntimeModule.GetTypes(RuntimeModule module)
+   at System.Reflection.Assembly.GetTypes()
+   at HarmonyLib.AccessTools.GetTypesFromAssembly(Assembly assembly)
+System.TypeLoadException: Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+System.TypeLoadException: Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+[Warning:FastCashier(SpeedTrace)] [Trace] Cashier whitelisted methods patched=1
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Unable to load one or more of the requested types.
+Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+   at System.Reflection.RuntimeModule.GetTypes(RuntimeModule module)
+   at System.Reflection.Assembly.GetTypes()
+   at HarmonyLib.AccessTools.GetTypesFromAssembly(Assembly assembly)
+System.TypeLoadException: Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+System.TypeLoadException: Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+[Warning:FastCashier(SpeedTrace)] [Trace] Checkout whitelisted methods patched=1
+[Warning:  HarmonyX] AccessTools.GetTypesFromAssembly: assembly UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null => System.Reflection.ReflectionTypeLoadException: Unable to load one or more of the requested types.
+Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+   at System.Reflection.RuntimeModule.GetTypes(RuntimeModule module)
+   at System.Reflection.Assembly.GetTypes()
+   at HarmonyLib.AccessTools.GetTypesFromAssembly(Assembly assembly)
+System.TypeLoadException: Could not load type '<>c' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+System.TypeLoadException: Could not load type 'IdentityAttributes' from assembly 'UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' because the format is invalid.
+[Warning:FastCashier(SpeedTrace)] [Trace] Customer whitelisted methods patched=1
+[Info   :Il2CppInterop] Registered mono type Maz.FastCashier.Plugin+Host in il2cpp domain
+[Warning:FastCashier(SpeedTrace)] === FastCashier(SpeedTrace) READY ===
+[Warning:FastCashier(SpeedTrace)] Press F9 in-game to toggle trace ON/OFF (starts OFF).
+[Info   :   BepInEx] Loading [More Detailed Computer Inventory 1.8.4]
+[Info   :Il2CppInterop] Registered mono type MoreDetailedComputerInventory.CheckComputerInteraction in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type MoreDetailedComputerInventory.CustomOrderMetric in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type MoreDetailedComputerInventory.GridSorter in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type MoreDetailedComputerInventory.MoreDetailedProductsScreen in il2cpp domain
+[Info   :   BepInEx] Loading [Online Order Auto Delivery 0.2.0]
+[Info   :   BepInEx] Loading [PocketBoxPlugin 0.5.5]
+[Info   :Il2CppInterop] Registered mono type PocketBoxPlugin.SpawnBoxBehaviour in il2cpp domain
+[Info   :PocketBoxPlugin] PocketBoxPlugin 0.5.5 loaded. Default spawn key: semicolon (;). Config: BepInEx/config/PocketBoxPlugin.cfg
+[Info   :   BepInEx] Loading [Price Helper 1.3.4]
+[Info   :Il2CppInterop] Registered mono type PriceHelper.Notifications in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type PriceHelper.ArrowPosFix in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type PriceHelper.IndividualSettingsButton in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type PriceHelper.PricingItemHelper in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type PriceHelper.ResizeButton in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type PriceHelper.SettingPriceCanvasHelper in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type PriceHelper.SettingsPanelHelper in il2cpp domain
+[Info   :Il2CppInterop] Registered mono type PriceHelper.InteractiveText in il2cpp domain
+[Info   :   BepInEx] Loading [ApolloVulpez's Super Stocker Plugin 1.0.1]
+[Info   :ApolloVulpez's Super Stocker Plugin] Plugin com.apollo.SMSimulator.superStocker is loaded!
+[Info   :   BepInEx] Loading [Game Info 1.0.1]
+[Message: Game Info] Game Name: Supermarket Simulator
+[Message: Game Info] Game Developer: Nokta Games
+[Message: Game Info] Game Version: 1.1.7
+[Info   :   BepInEx] Loading [File Tree 2.0.0]
+[Info   : File Tree] File Tree logging is enabled.
+[Info   :   BepInEx] Loading [Auto Stow Box 1.6.0]
+[Info   :Auto Stow Box] [AUTO-STOW] Loaded 1.6.0 (EZDelivery-style end: m_Box=null + PlaceBoxToRack + InteractionEnd)
+[Info   :   BepInEx] Loading [NightShift (IL2CPP) 2.3.4]
+[Info   :NightShift (IL2CPP)] [NS] [BOOT] ==================================================
+[Info   :NightShift (IL2CPP)] [NS] [BOOT] LOADED NightShift 2.3.4 @ 2/6/2026 3:21:00 PM
+[Info   :NightShift (IL2CPP)] [NS] [BOOT] Time-sliced worker (FRAME_BUDGET_MS=4), OPS_PER_FRAME=50
+[Info   :NightShift (IL2CPP)] [NS] [BOOT] ==================================================
+[Info   :Il2CppInterop] Registered mono type NightShiftRuntime in il2cpp domain
+[Info   :NightShift (IL2CPP)] [NS] [BOOT] Runtime injected.
+[Info   :   BepInEx] Loading [Refill Storage (Exact) 7.0.3]
+[Info   :Refill Storage (Exact)] [REFILL] Patched UIDropdownScroller.Select for inject trigger.
+[Info   :Il2CppInterop] Registered mono type RefillRunner in il2cpp domain
+[Info   :Refill Storage (Exact)] [REFILL] Runner created (DontDestroyOnLoad).
+[Info   :Refill Storage (Exact)] [REFILL] Loaded (Exact) w/ scene-safe reinject.
+[Info   :   BepInEx] Loading [Numpad -> POS Terminal 3.0.7]
+[Info   :Numpad -> POS Terminal] Numpad -> POS Terminal v3.0.7 loaded
+[Info   : File Tree] Z:\mnt\Storage\SteamLibrary\steamapps\common\Supermarket Simulator
+[Info   : File Tree] |
+[Info   : File Tree] |-- BepInEx
+[Info   :Il2CppInterop] Registered mono type NumpadCardReaderFix.NumpadPosTerminalFixBehaviour in il2cpp domain
+[Info   : File Tree] |   |
+[Info   : File Tree] |   |-- cache
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   \-- chainloader_typeloader.dat [6.01 KB]
+[Info   : File Tree] |   |
+[Info   :Numpad -> POS Terminal] [NPOS] Runner attached. Numpad 0-9 => AddChar(), Numpad Enter => Approve(), Numpad - => RemoveCharacter()
+[Info   : File Tree] |   |-- config
+[Info   :   BepInEx] Loading [Open/Close Store Hotkey 1.1.1]
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- AutoBillPayment.cfg [260 B]
+[Info   : File Tree] |   |   |-- AutoStock.LHK.cfg [5.76 KB]
+[Info   :Open/Close Store Hotkey] Open/Close Store Hotkey v1.1.1 loaded
+[Info   : File Tree] |   |   |-- BepInEx.cfg [7.61 KB]
+[Info   :Open/Close Store Hotkey] [OC] Press F10 anytime to toggle store (StoreStatusSign.InstantInteract)
+[Info   : File Tree] |   |   |-- BetterLights.cfg [4.06 KB]
+[Info   : File Tree] |   |   |-- com.nickw.pocketbox.cfg [488 B]
+[Info   : File Tree] |   |   |-- com.rdc.stockmanager.cfg [2.88 KB]
+[Info   : File Tree] |   |   |-- Maz.Bettercashier.cfg [525 B]
+[Info   : File Tree] |   |   |-- maz.fastercashiers.discovery2.cfg [458 B]
+[Info   : File Tree] |   |   |-- maz.fastercashiers.logger.cfg [513 B]
+[Info   : File Tree] |   |   |-- maz.fastercashiers.logger.products.cfg [562 B]
+[Info   : File Tree] |   |   |-- maz.fastercashiers.logger.safe.cfg [965 B]
+[Info   : File Tree] |   |   |-- MoreDetailedComputerInventory.cfg [6.08 KB]
+[Info   : File Tree] |   |   |-- OnlineOrderAutoDelivery.cfg [301 B]
+[Info   : File Tree] |   |   |-- PocketBoxPlugin.cfg [1.14 KB]
+[Info   :Il2CppInterop] Registered mono type OpenCloseStoreHotkey.OpenCloseRunner in il2cpp domain
+[Info   : File Tree] |   |   |-- PriceHelper.cfg [2.46 KB]
+[Info   : File Tree] |   |   |-- SuperStocker.cfg [309 B]
+[Info   : File Tree] |   |   |-- Tobey.BepInEx.Timestamp.cfg [1.6 KB]
+[Message:   BepInEx] Chainloader startup complete
+[Info   : File Tree] |   |   |-- Tobey.FileTree.cfg [396 B]
+[Info   : File Tree] |   |   |-- UnityExplorer.BIE.IL2CPP.cfg [13 B]
+[Info   : File Tree] |   |   |-- von.autostowbox.cfg [4.9 KB]
+[Info   : File Tree] |   |   \-- von.fastcashier.hardlog.cfg [616 B]
+[Info   : File Tree] |   |
+[Info   : File Tree] |   |-- core
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- Tobey
+[Info   : File Tree] |   |   |   |
+[Info   : File Tree] |   |   |   \-- UniverseLib.BIE.IL2CPP.Interop.dll [2.88 MB]
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- 0Harmony.dll [264.19 KB]
+[Info   : File Tree] |   |   |-- AsmResolver.dll [67.58 KB]
+[Info   : File Tree] |   |   |-- AsmResolver.DotNet.dll [524.29 KB]
+[Info   : File Tree] |   |   |-- AsmResolver.PE.dll [380.42 KB]
+[Info   : File Tree] |   |   |-- AsmResolver.PE.File.dll [39.42 KB]
+[Info   : File Tree] |   |   |-- AssetRipper.CIL.dll [28.16 KB]
+[Info   : File Tree] |   |   |-- AssetRipper.Primitives.dll [28.67 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Core.dll [135.68 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Core.xml [90.25 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Preloader.Core.dll [52.74 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Preloader.Core.xml [16.39 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Unity.Common.dll [13.82 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Unity.Common.xml [1.2 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Unity.IL2CPP.dll [80.9 KB]
+[Info   : File Tree] |   |   |-- BepInEx.Unity.IL2CPP.dll.config [456 B]
+[Info   : File Tree] |   |   |-- BepInEx.Unity.IL2CPP.xml [1.85 KB]
+[Info   : File Tree] |   |   |-- Cpp2IL.Core.dll [355.33 KB]
+[Info   : File Tree] |   |   |-- Disarm.dll [138.24 KB]
+[Info   : File Tree] |   |   |-- dobby.dll [205.31 KB]
+[Info   : File Tree] |   |   |-- Gee.External.Capstone.dll [295.94 KB]
+[Info   : File Tree] |   |   |-- Iced.dll [1.9 MB]
+[Info   : File Tree] |   |   |-- Il2CppInterop.Common.dll [41.47 KB]
+[Info   : File Tree] |   |   |-- Il2CppInterop.Generator.dll [219.14 KB]
+[Info   : File Tree] |   |   |-- Il2CppInterop.HarmonySupport.dll [25.6 KB]
+[Info   : File Tree] |   |   |-- Il2CppInterop.Runtime.dll [291.84 KB]
+[Info   : File Tree] |   |   |-- LibCpp2IL.dll [284.67 KB]
+[Info   : File Tree] |   |   |-- Mono.Cecil.dll [356.86 KB]
+[Info   : File Tree] |   |   |-- Mono.Cecil.Mdb.dll [39.42 KB]
+[Info   : File Tree] |   |   |-- Mono.Cecil.Pdb.dll [89.6 KB]
+[Info   : File Tree] |   |   |-- Mono.Cecil.Rocks.dll [24.58 KB]
+[Info   : File Tree] |   |   |-- MonoMod.Backports.dll [29.18 KB]
+[Info   : File Tree] |   |   |-- MonoMod.ILHelpers.dll [4.1 KB]
+[Info   : File Tree] |   |   |-- MonoMod.RuntimeDetour.dll [112.64 KB]
+[Info   : File Tree] |   |   |-- MonoMod.Utils.dll [193.02 KB]
+[Info   : File Tree] |   |   |-- SemanticVersioning.dll [34.82 KB]
+[Info   : File Tree] |   |   |-- StableNameDotNet.dll [28.16 KB]
+[Info   : File Tree] |   |   \-- WasmDisassembler.dll [22.53 KB]
+[Info   : File Tree] |   |
+[Info   : File Tree] |   |-- Interop
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- Assembly-CSharp-firstpass.dll [1.53 MB]
+[Info   : File Tree] |   |   |-- Assembly-CSharp.dll [8.82 MB]
+[Info   : File Tree] |   |   |-- assembly-hash.txt [32 B]
+[Info   : File Tree] |   |   |-- AYellowpaper.SerializedCollections.dll [27.65 KB]
+[Info   : File Tree] |   |   |-- Cinemachine.dll [760.32 KB]
+[Info   : File Tree] |   |   |-- CleanFlatUI.dll [656.9 KB]
+[Info   : File Tree] |   |   |-- CW.Common.dll [129.54 KB]
+[Info   : File Tree] |   |   |-- DOTween.dll [618.5 KB]
+[Info   : File Tree] |   |   |-- DOTweenPro.dll [39.42 KB]
+[Info   : File Tree] |   |   |-- Dreamteck.Splines.dll [593.41 KB]
+[Info   : File Tree] |   |   |-- Dreamteck.Utilities.dll [62.98 KB]
+[Info   : File Tree] |   |   |-- Facepunch.Steamworks.Win64.dll [2.36 MB]
+[Info   : File Tree] |   |   |-- Il2CppMono.Security.dll [313.34 KB]
+[Info   : File Tree] |   |   |-- Il2Cppmscorlib.dll [6.22 MB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Configuration.dll [13.31 KB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Core.dll [1.63 MB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Data.dll [1.47 MB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.dll [3.17 MB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Drawing.dll [28.67 KB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Numerics.dll [89.09 KB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Runtime.Serialization.dll [6.66 KB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Xml.dll [2.98 MB]
+[Info   : File Tree] |   |   |-- Il2CppSystem.Xml.Linq.dll [110.08 KB]
+[Info   : File Tree] |   |   |-- LeanCommon.dll [77.82 KB]
+[Info   : File Tree] |   |   |-- LeanPool.dll [48.13 KB]
+[Info   : File Tree] |   |   |-- M3D Font Creator - Runtime Only.dll [60.42 KB]
+[Info   : File Tree] |   |   |-- MethodAddressToToken.db [2.35 MB]
+[Info   : File Tree] |   |   |-- MethodXrefScanCache.db [33.83 MB]
+[Info   : File Tree] |   |   |-- MyBox.dll [408.06 KB]
+[Info   : File Tree] |   |   |-- NaisuPorter.dll [33.79 KB]
+[Info   : File Tree] |   |   |-- Newtonsoft.Json.dll [2.07 MB]
+[Info   : File Tree] |   |   |-- NodeCanvas.dll [781.31 KB]
+[Info   : File Tree] |   |   |-- ParadoxNotion.dll [970.24 KB]
+[Info   : File Tree] |   |   |-- Pathfinding.Ionic.Zip.Reduced.dll [612.35 KB]
+[Info   : File Tree] |   |   |-- PerfectCullingRuntime.dll [137.73 KB]
+[Info   : File Tree] |   |   |-- Photon3Unity3D.dll [556.54 KB]
+[Info   : File Tree] |   |   |-- PhotonChat.dll [89.09 KB]
+[Info   : File Tree] |   |   |-- PhotonRealtime.dll [304.64 KB]
+[Info   : File Tree] |   |   |-- PhotonUnityNetworking.Demos.dll [370.69 KB]
+[Info   : File Tree] |   |   |-- PhotonUnityNetworking.dll [251.39 KB]
+[Info   : File Tree] |   |   |-- PhotonUnityNetworking.Utilities.dll [144.9 KB]
+[Info   : File Tree] |   |   |-- test.dll [6.14 KB]
+[Info   : File Tree] |   |   |-- Unity.Addressables.dll [359.42 KB]
+[Info   : File Tree] |   |   |-- Unity.AI.Navigation.dll [63.49 KB]
+[Info   : File Tree] |   |   |-- Unity.Animation.Rigging.dll [368.13 KB]
+[Info   : File Tree] |   |   |-- Unity.Burst.dll [1.45 MB]
+[Info   : File Tree] |   |   |-- Unity.Burst.Unsafe.dll [22.02 KB]
+[Info   : File Tree] |   |   |-- Unity.Collections.dll [1.68 MB]
+[Info   : File Tree] |   |   |-- Unity.Collections.LowLevel.ILSupport.dll [9.22 KB]
+[Info   : File Tree] |   |   |-- Unity.InputSystem.dll [2.81 MB]
+[Info   : File Tree] |   |   |-- Unity.InputSystem.ForUI.dll [32.26 KB]
+[Info   : File Tree] |   |   |-- Unity.Localization.dll [986.62 KB]
+[Info   : File Tree] |   |   |-- Unity.Mathematics.dll [2.21 MB]
+[Info   : File Tree] |   |   |-- Unity.MemoryProfiler.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- Unity.Microsoft.GDK.dll [2.28 MB]
+[Info   : File Tree] |   |   |-- Unity.Microsoft.GDK.Tools.dll [200.7 KB]
+[Info   : File Tree] |   |   |-- Unity.RenderPipeline.Universal.ShaderLibrary.dll [11.78 KB]
+[Info   : File Tree] |   |   |-- Unity.RenderPipelines.Core.Runtime.dll [2.67 MB]
+[Info   : File Tree] |   |   |-- Unity.RenderPipelines.Core.Runtime.Shared.dll [8.19 KB]
+[Info   : File Tree] |   |   |-- Unity.RenderPipelines.GPUDriven.Runtime.dll [660.48 KB]
+[Info   : File Tree] |   |   |-- Unity.RenderPipelines.Universal.2D.Runtime.dll [589.31 KB]
+[Info   : File Tree] |   |   |-- Unity.RenderPipelines.Universal.Runtime.dll [2.06 MB]
+[Info   : File Tree] |   |   |-- Unity.ResourceManager.dll [471.04 KB]
+[Info   : File Tree] |   |   |-- Unity.TextMeshPro.dll [992.26 KB]
+[Info   : File Tree] |   |   |-- Unity.Timeline.dll [395.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AccessibilityModule.dll [95.23 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AIModule.dll [134.14 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AndroidJNIModule.dll [199.68 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AnimationModule.dll [507.39 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AssetBundleModule.dll [38.4 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AudioModule.dll [201.73 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ClothModule.dll [26.11 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ClusterInputModule.dll [8.19 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ClusterRendererModule.dll [6.66 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ContentLoadModule.dll [4.1 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.CoreModule.dll [4.41 MB]
+[Info   : File Tree] |   |   |-- UnityEngine.CrashReportingModule.dll [6.66 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.DirectorModule.dll [44.54 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.dll [3.07 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.DSPGraphModule.dll [10.24 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GameCenterModule.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GIModule.dll [2.05 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GraphicsStateCollectionSerializerModule.dll [2.05 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GridModule.dll [13.82 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.HierarchyCoreModule.dll [184.32 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.HotReloadModule.dll [2.05 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ImageConversionModule.dll [15.36 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.IMGUIModule.dll [456.7 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.InputForUIModule.dll [107.52 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.InputLegacyModule.dll [64 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.InputModule.dll [15.36 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.JSONSerializeModule.dll [7.68 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.LocalizationModule.dll [6.14 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.MarshallingModule.dll [95.74 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.MultiplayerModule.dll [4.1 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ParticleSystemModule.dll [451.58 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.PerformanceReportingModule.dll [3.07 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.Physics2DModule.dll [370.69 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.PhysicsModule.dll [396.29 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.PropertiesModule.dll [434.69 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll [2.05 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ScreenCaptureModule.dll [4.61 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ShaderVariantAnalyticsModule.dll [2.05 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SharedInternalsModule.dll [35.84 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SpriteMaskModule.dll [12.8 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SpriteShapeModule.dll [10.24 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.StreamingModule.dll [4.61 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SubstanceModule.dll [6.66 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SubsystemsModule.dll [33.28 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TerrainModule.dll [158.21 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TerrainPhysicsModule.dll [4.61 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TextCoreFontEngineModule.dll [138.75 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TextCoreTextEngineModule.dll [560.64 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TextRenderingModule.dll [59.9 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TilemapModule.dll [81.41 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TLSModule.dll [5.12 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UI.dll [823.3 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UIElementsModule.dll [5.31 MB]
+[Info   : File Tree] |   |   |-- UnityEngine.UIModule.dll [87.55 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UmbraModule.dll [2.05 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityAnalyticsCommonModule.dll [56.32 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityAnalyticsModule.dll [72.7 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityConnectModule.dll [10.24 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityCurlModule.dll [7.17 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityTestProtocolModule.dll [2.05 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestAssetBundleModule.dll [14.34 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestAudioModule.dll [11.78 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestModule.dll [99.84 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestTextureModule.dll [4.1 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestWWWModule.dll [7.68 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VehiclesModule.dll [29.7 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VFXModule.dll [108.03 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VideoModule.dll [81.41 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VirtualTexturingModule.dll [18.43 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VRModule.dll [18.43 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.WindModule.dll [9.22 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.XRModule.dll [118.27 KB]
+[Info   : File Tree] |   |   |-- __Generated [2.56 KB]
+[Info   : File Tree] |   |   \-- __Generated.dll [4.61 KB]
+[Info   : File Tree] |   |
+[Info   : File Tree] |   |-- patchers
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- Tobey
+[Info   : File Tree] |   |   |   |
+[Info   : File Tree] |   |   |   \-- Tobey.BepInEx.Timestamp.dll [28.16 KB]
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   \-- BepInExConfigManager.Il2Cpp.Patcher.dll [6.14 KB]
+[Info   : File Tree] |   |
+[Info   : File Tree] |   |-- plugins
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- Tobey
+[Info   : File Tree] |   |   |   |
+[Info   : File Tree] |   |   |   |-- File Tree
+[Info   : File Tree] |   |   |   |   |
+[Info   : File Tree] |   |   |   |   \-- Tobey.FileTree.dll [26.11 KB]
+[Info   : File Tree] |   |   |   |
+[Info   : File Tree] |   |   |   \-- Tobey.BepInEx.GameInfo.dll [7.68 KB]
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- AutoBillPayment.dll [14.34 KB]
+[Info   : File Tree] |   |   |-- AutoStowBoxPlugin.dll [10.24 KB]
+[Info   : File Tree] |   |   |-- BepInEx.KeyboardShortcut.dll [18.43 KB]
+[Info   : File Tree] |   |   |-- BepInExConfigManager.Il2Cpp.dll [53.25 KB]
+[Info   : File Tree] |   |   |-- BetterLights.dll [32.26 KB]
+[Info   : File Tree] |   |   |-- CardOnlyV2.dll [5.12 KB]
+[Info   : File Tree] |   |   |-- FastCashierSpeed.dll [18.94 KB]
+[Info   : File Tree] |   |   |-- MoreDetailedComputerInventory.dll [799.74 KB]
+[Info   : File Tree] |   |   |-- NightShiftPlugin.dll [17.41 KB]
+[Info   : File Tree] |   |   |-- NumpadCardReaderFix.dll [8.7 KB]
+[Info   : File Tree] |   |   |-- OnlineOrderAutoDelivery.dll [7.68 KB]
+[Info   : File Tree] |   |   |-- OpenCloseStoreHotkey.dll [7.68 KB]
+[Info   : File Tree] |   |   |-- PocketBoxPlugin.dll [15.36 KB]
+[Info   : File Tree] |   |   |-- PriceHelper.dll [1.25 MB]
+[Info   : File Tree] |   |   |-- RefillStoragePlugin.dll [13.31 KB]
+[Info   : File Tree] |   |   |-- SuperStocker.dll [6.66 KB]
+[Info   : File Tree] |   |   \-- UniverseLib.IL2CPP.Unhollower.dll [2.85 MB]
+[Info   : File Tree] |   |
+[Info   : File Tree] |   |-- unity-libs
+[Info   : File Tree] |   |   |
+[Info   : File Tree] |   |   |-- 6000.0.62.zip [2.45 MB]
+[Info   : File Tree] |   |   |-- 6000.1.17.zip [2.48 MB]
+[Info   : File Tree] |   |   |-- UnityEngine.AccessibilityModule.dll [42.5 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AIModule.dll [63.49 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AndroidJNIModule.dll [108.03 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AnimationModule.dll [205.82 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AssetBundleModule.dll [29.18 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.AudioModule.dll [93.18 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ClothModule.dll [23.04 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ClusterInputModule.dll [14.34 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ClusterRendererModule.dll [13.31 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ContentLoadModule.dll [19.46 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.CoreModule.dll [1.82 MB]
+[Info   : File Tree] |   |   |-- UnityEngine.CrashReportingModule.dll [13.31 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.DirectorModule.dll [28.67 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.dll [159.74 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.DSPGraphModule.dll [20.48 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GameCenterModule.dll [32.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GIModule.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GraphicsStateCollectionSerializerModule.dll [3.58 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.GridModule.dll [16.9 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.HierarchyCoreModule.dll [80.9 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.HotReloadModule.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ImageConversionModule.dll [17.92 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.IMGUIModule.dll [197.12 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.InputForUIModule.dll [46.59 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.InputLegacyModule.dll [32.77 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.InputModule.dll [14.85 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.JSONSerializeModule.dll [13.82 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.LocalizationModule.dll [13.82 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.MarshallingModule.dll [54.27 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.MultiplayerModule.dll [5.12 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ParticleSystemModule.dll [158.21 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.PerformanceReportingModule.dll [11.78 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.Physics2DModule.dll [192 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.PhysicsModule.dll [172.54 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.PropertiesModule.dll [138.75 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ScreenCaptureModule.dll [12.8 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.ShaderVariantAnalyticsModule.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SharedInternalsModule.dll [22.53 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SpriteMaskModule.dll [15.36 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SpriteShapeModule.dll [18.43 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.StreamingModule.dll [12.29 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SubstanceModule.dll [15.87 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.SubsystemsModule.dll [28.67 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TerrainModule.dll [119.81 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TerrainPhysicsModule.dll [12.29 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TextCoreFontEngineModule.dll [74.75 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TextCoreTextEngineModule.dll [297.98 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TextRenderingModule.dll [35.84 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TilemapModule.dll [44.54 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.TLSModule.dll [17.92 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UIElementsModule.dll [2.06 MB]
+[Info   : File Tree] |   |   |-- UnityEngine.UIModule.dll [36.35 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UmbraModule.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityAnalyticsCommonModule.dll [22.02 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityAnalyticsModule.dll [47.62 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityConnectModule.dll [14.34 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityCurlModule.dll [12.8 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityTestProtocolModule.dll [11.26 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestAssetBundleModule.dll [15.36 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestAudioModule.dll [14.85 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestModule.dll [55.81 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestTextureModule.dll [14.34 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.UnityWebRequestWWWModule.dll [23.04 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VehiclesModule.dll [17.92 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VFXModule.dll [65.02 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VideoModule.dll [45.06 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VirtualTexturingModule.dll [29.7 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.VRModule.dll [18.43 KB]
+[Info   : File Tree] |   |   |-- UnityEngine.WindModule.dll [13.31 KB]
+[Info   : File Tree] |   |   \-- UnityEngine.XRModule.dll [74.75 KB]
+[Info   : File Tree] |   |
+[Info   : File Tree] |   |-- BepInExConfigManager.Il2Cpp.zip [2.77 MB]
+[Info   : File Tree] |   |-- ErrorLog.log [0 B]
+[Info   : File Tree] |   |-- LogOutput.log [12.73 KB]
+[Info   : File Tree] |   |-- NightShift.log [24.47 KB]
+[Info   : File Tree] |   |-- UnityExplorer.BepInEx.IL2CPP.CoreCLR.zip [3.36 MB]
+[Info   : File Tree] |   |-- UnityExplorer.BepInEx.IL2CPP.zip [3.43 MB]
+[Info   : File Tree] |   \-- UnityExplorer.Editor.zip [4.41 MB]
+[Info   : File Tree] |
+[Info   : File Tree] |-- Broken Mods
+[Info   : File Tree] |   |
+[Info   : File Tree] |   \-- (contents not shown)
+[Info   : File Tree] |
+[Info   : File Tree] |-- D3D12
+[Info   : File Tree] |   |
+[Info   : File Tree] |   \-- (contents not shown)
+[Info   : File Tree] |
+[Info   : File Tree] |-- dotnet
+[Info   : File Tree] |   |
+[Info   : File Tree] |   \-- (contents not shown)
+[Info   : File Tree] |
+[Info   : File Tree] |-- interop-old
+[Info   : File Tree] |   |
+[Info   : File Tree] |   \-- (contents not shown)
+[Info   : File Tree] |
+[Info   : File Tree] |-- Supermarket Simulator_Data
+[Info   : File Tree] |   |
+[Info   : File Tree] |   \-- (contents not shown)
+[Info   : File Tree] |
+[Info   : File Tree] |-- .doorstop_version [5 B]
+[Info   : File Tree] |-- baselib.dll [226.22 KB]
+[Info   : File Tree] |-- changelog.txt [3.57 KB]
+[Info   : File Tree] |-- doorstop_config.ini [1.88 KB]
+[Info   : File Tree] |-- GameAssembly.dll [76.76 MB]
+[Info   : File Tree] |-- Supermarket Simulator.exe [667.65 KB]
+[Info   : File Tree] |-- UnityCrashHandler64.exe [1.56 MB]
+[Info   : File Tree] |-- UnityPlayer.dll [33.47 MB]
+[Info   : File Tree] \-- winhttp.dll [26.11 KB]
+[Info   :Refill Storage (Exact)] [REFILL] SceneLoaded name='SignIn' mode=2 -> reset injected=false
+[Info   :NightShift (IL2CPP)] [NS] [RT] Start. Heartbeat 10s. DayCheck 0.5s.
+[Info   :Refill Storage (Exact)] [REFILL] SceneLoaded name='Main Menu' mode=Single -> reset injected=false
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=10.012351
+[Info   :Refill Storage (Exact)] [REFILL] Injected button next to Cart Button.
+[Info   :Refill Storage (Exact)] [REFILL] SceneLoaded name='Main Scene' mode=Single -> reset injected=false
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=20.899532
+[Info   :NightShift (IL2CPP)] [NS] [DAY] Primed day=36
+[Info   :Numpad -> POS Terminal] [NPOS] Found active PosTerminal
+[Info   :Open/Close Store Hotkey] [OC] Found StoreStatusSign
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.ScanningInterval 1.5000 -> 0.5250
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.m_CashierScanIntervals scaled (Count=4)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=30.900894
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=40.9112
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=50.92032
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=60.93667
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=70.94678
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=80.95485
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=90.96936
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=101.02712
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=111.038086
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=121.049805
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=131.06975
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=141.07358
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=151.08698
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=161.09932
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=171.10483
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=181.10971
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=191.15866
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=166 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=201.19745
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=186 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=211.22527
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=179 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=221.27493
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=231.30414
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=241.33298
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=251.34052
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=261.36438
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=271.39276
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=281.39456
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=291.40268
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=301.42313
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=311.4319
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=321.4533
+[Info   :Refill Storage (Exact)] [REFILL] Added cart entries: 5
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=331.4756
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=341.4799
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=351.51978
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.ScanningInterval 1.5000 -> 0.5250
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.m_CashierScanIntervals scaled (Count=4)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=361.61304
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=371.73193
+[Info   :Open/Close Store Hotkey] [OC] StoreStatusSign.InstantInteract() => False
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=381.73837
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=391.7398
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=401.77945
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=411.78076
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=421.79523
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=431.81088
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=441.8949
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=451.89856
+[Info   :FastCashier(SpeedTrace)] [SPEED] Cashier.CurrentScanSpeed 1.0000 -> 2.5000
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=461.91153
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=471.91486
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=481.9314
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=491.95627
+[Info   :FastCashier(SpeedTrace)] [SPEED] Cashier.CurrentScanSpeed 1.0000 -> 2.5000
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=501.95694
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=511.9961
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=522.00555
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=532.0222
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=542.0237
+[Info   :FastCashier(SpeedTrace)] [SPEED] ScanAnimationHandler.ScanSpeed -0.0293 -> 0.0100
+[Info   :FastCashier(SpeedTrace)] [SPEED] ScanAnimationHandler.ScanSpeed 3.9019 -> 9.7548
+[Info   :FastCashier(SpeedTrace)] [SPEED] ScanAnimationHandler.ScanSpeed 0.0167 -> 0.0417
+[Info   :FastCashier(SpeedTrace)] [SPEED] ScanAnimationHandler.ScanSpeed 0.0587 -> 0.1468
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=552.0551
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=562.06903
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=572.0934
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=582.096
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=592.1184
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=602.1312
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=612.15753
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=622.16034
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=632.1864
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=642.1957
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=652.2862
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=662.2944
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=672.3206
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=682.3682
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=692.3939
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=702.40137
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=712.4768
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=722.48096
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=732.4904
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=742.5093
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=752.52795
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=762.55676
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=772.5813
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=782.5892
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=792.6081
+[Info   :Open/Close Store Hotkey] [OC] StoreStatusSign.InstantInteract() => False
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=802.6215
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=812.65063
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=822.67694
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=832.70337
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=842.7214
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=852.7339
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=862.77075
+[Info   :NightShift (IL2CPP)] [NS] [DAY] Day changed 36 -> 37
+[Info   :NightShift (IL2CPP)] [NS] [SCHED] Scheduled day=37 reason=DayTransitionDetector runAt=875.45996
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=872.7938
+[Info   :NightShift (IL2CPP)] [NS] [RUN] ENTER day=37 reason=DayTransitionDetector
+[Info   :NightShift (IL2CPP)] [NS] [STEP0] Snapshot RackManager=True DisplayManager=True InventoryManager=True IDManager=True
+[Info   :NightShift (IL2CPP)] [NS] [STEP1] BEGIN day=37 products=80 rackSlots=136
+[Info   :NightShift (IL2CPP)] [NS] [STEP1] END movedBoxes=2 movedProducts=119 scannedDisplaySlots=555 loops=2 stoppedByCap=False
+[Info   :NightShift (IL2CPP)] [NS] [STEP2] BEGIN
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=882.8115
+[Info   :Refill Storage (Exact)] [REFILL] Added cart entries: 25
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=892.81824
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=902.8219
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=187 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=139 BoxID=4 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=64 BoxID=3 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=115 BoxID=4 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=128 BoxID=3 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=912.8371
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=86 BoxID=4 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=56 BoxID=3 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=101 BoxID=4 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=69 BoxID=3 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=125 BoxID=5 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=99 BoxID=2 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=125 BoxID=5 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=922.85504
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=132 BoxID=1 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=95 BoxID=1 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=932.8774
+[Info   :Refill Storage (Exact)] [REFILL] SceneLoaded name='Main Menu' mode=Single -> reset injected=false
+[Info   :NightShift (IL2CPP)] [NS] [STEP2] END removedEmptyBoxes=0
+[Info   :NightShift (IL2CPP)] [NS] [RUN] END day=37 reason=DayTransitionDetector total_ms=60871 movedBoxes=2 movedProducts=119 removedEmpty=0 stoppedByCap=False
+[Info   :Refill Storage (Exact)] [REFILL] Injected button next to Cart Button.
+[Info   :Refill Storage (Exact)] [REFILL] SceneLoaded name='Main Scene' mode=Single -> reset injected=false
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=945.98126
+[Info   :Numpad -> POS Terminal] [NPOS] Found active PosTerminal
+[Info   :Open/Close Store Hotkey] [OC] Found StoreStatusSign
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.ScanningInterval 1.5000 -> 0.5250
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.m_CashierScanIntervals scaled (Count=4)
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.ScanningInterval 1.5000 -> 0.5250
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.m_CashierScanIntervals scaled (Count=4)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=165 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=174 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=955.9822
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=965.99426
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=976.0054
+[Info   :Refill Storage (Exact)] [REFILL] Added cart entries: 0
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=986.0161
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=996.02136
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1006.0367
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1016.0516
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1026.0543
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1036.0668
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1046.0717
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1056.0999
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1066.1057
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1076.125
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=185 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=182 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=183 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1086.1306
+[Info   :Refill Storage (Exact)] [REFILL] Added cart entries: 4
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1096.1434
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=183 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=183 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=183 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1106.1506
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=182 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=182 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=182 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=185 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=185 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=188 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=185 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=188 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=188 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1116.1829
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1126.1934
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1136.1945
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1146.2103
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1156.2458
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1166.2673
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1176.2999
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1186.3191
+[Info   :Refill Storage (Exact)] [REFILL] Added cart entries: 0
+[Info   :Refill Storage (Exact)] [REFILL] Added cart entries: 0
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1196.3229
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=177 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=177 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=177 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1206.3336
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=181 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=181 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=181 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :Auto Stow Box] [AUTO-STOW] Stowed ProductID=181 BoxID=7 (PlaceBoxToRack=False, InteractionEnd=True)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1216.3369
+[Info   :Refill Storage (Exact)] [REFILL] Added cart entries: 0
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1226.3472
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1236.3517
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1246.3746
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1256.3816
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1266.3988
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1276.4204
+[Info   :Refill Storage (Exact)] [REFILL] SceneLoaded name='Main Menu' mode=Single -> reset injected=false
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1286.9429
+[Info   :Refill Storage (Exact)] [REFILL] Injected button next to Cart Button.
+[Info   :Refill Storage (Exact)] [REFILL] SceneLoaded name='Main Scene' mode=Single -> reset injected=false
+[Info   :Numpad -> POS Terminal] [NPOS] Found active PosTerminal
+[Info   :Open/Close Store Hotkey] [OC] Found StoreStatusSign
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.ScanningInterval 1.5000 -> 0.5250
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.m_CashierScanIntervals scaled (Count=4)
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.ScanningInterval 1.5000 -> 0.5250
+[Warning:FastCashier(SpeedTrace)] [SPEED] Cashier.m_CashierScanIntervals scaled (Count=4)
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1307.0782
+[Info   :NightShift (IL2CPP)] [NS] [RT] Heartbeat t=1317.0975
