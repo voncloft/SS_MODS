@@ -7,9 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
-[BepInPlugin("von.nightshift.il2cpp", "NightShift (IL2CPP)", "2.3.2")]
+[BepInPlugin("von.nightshift.il2cpp", "NightShift (IL2CPP)", "2.3.3")]
 public class NightShiftPlugin : BasePlugin
 {
     internal static ManualLogSource L;
@@ -31,15 +32,34 @@ public class NightShiftPlugin : BasePlugin
     internal const int MAX_TOTAL_MS = 8000;
     internal const int MAX_OUTER_LOOPS = 12;
 
+    // LeanPool safety / throttled warnings
+    private static MethodInfo _miIsSpawnedGO;
+    private static float _nextPoolLogTime = 0f;
+    private static int _poolFallbackDestroyCount = 0;
+
     public override void Load()
     {
         L = Log;
 
         LogI("BOOT", "==================================================");
-        LogI("BOOT", "LOADED NightShift 2.3.2 @ " + DateTime.Now);
+        LogI("BOOT", "LOADED NightShift 2.3.3 @ " + DateTime.Now);
         LogI("BOOT", "End-of-day only via DayTransition detector (NO Harmony hooks).");
         LogI("BOOT", "Chunked worker in Update. Delay=" + RUN_DELAY_SECONDS + "s OPS_PER_FRAME=" + OPS_PER_FRAME);
         LogI("BOOT", "==================================================");
+
+        // Cache reflection for LeanPool.IsSpawned(GameObject) if it exists in this LeanPool build
+        try
+        {
+            _miIsSpawnedGO = typeof(LeanPool).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .FirstOrDefault(m =>
+                {
+                    if (m == null) return false;
+                    if (m.Name != "IsSpawned") return false;
+                    var ps = m.GetParameters();
+                    return ps != null && ps.Length == 1 && ps[0].ParameterType == typeof(GameObject);
+                });
+        }
+        catch { _miIsSpawnedGO = null; }
 
         try
         {
@@ -95,16 +115,97 @@ public class NightShiftPlugin : BasePlugin
         LogI("SCHED", "Scheduled day=" + newDay + " reason=" + reason + " runAt=" + Worker.RunAt);
     }
 
+    private static void PoolFallbackLogRateLimited(string msg)
+    {
+        try
+        {
+            float now = Time.unscaledTime;
+            if (now < _nextPoolLogTime) return;
+            _nextPoolLogTime = now + 5f; // at most once every 5 seconds
+            LogW("POOL", msg + " (fallbackDestroyCount=" + _poolFallbackDestroyCount + ")");
+        }
+        catch { }
+    }
+
+    private static bool LeanPoolIsSpawnedSafe(GameObject go)
+    {
+        if (go == null) return false;
+
+        // Best: call LeanPool.IsSpawned(go) if present in this build (via reflection).
+        try
+        {
+            if (_miIsSpawnedGO != null)
+            {
+                object r = _miIsSpawnedGO.Invoke(null, new object[] { go });
+                if (r is bool b) return b;
+            }
+        }
+        catch { }
+
+        // Fallback heuristic: check for common LeanPool marker components on the object.
+        // This avoids false positives and prevents spam/freeze.
+        try
+        {
+            var comps = go.GetComponents<Component>();
+            if (comps != null)
+            {
+                for (int i = 0; i < comps.Length; i++)
+                {
+                    var c = comps[i];
+                    if (c == null) continue;
+
+                    var t = c.GetType();
+                    var n = t.Name;
+
+                    // Common LeanPool-ish component names across versions:
+                    if (n.IndexOf("LeanPooled", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                    if (n.IndexOf("LeanPoolable", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                    if (n.IndexOf("PooledObject", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                    if (t.Namespace != null && t.Namespace.IndexOf("Lean.Pool", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        // If it's in Lean.Pool namespace and looks pool-related, treat as pooled.
+                        if (n.IndexOf("Pool", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                    }
+                }
+            }
+        }
+        catch { }
+
+        // If we cannot prove it's pooled, treat as NOT pooled (prevents warning spam).
+        return false;
+    }
+
     internal static void SafePoolDespawnBox(Box box)
     {
         if (box == null) return;
+
+        GameObject go = null;
+        try { go = ((Component)box).gameObject; } catch { return; }
+        if (go == null) return;
+
+        // CRITICAL FIX:
+        // Only Despawn when we can reasonably determine it's pooled.
+        // Otherwise Destroy to prevent LeanPool warning spam/freezes.
         try
         {
-            var go = ((Component)box).gameObject;
-            if (go != null) LeanPool.Despawn(go);
+            if (LeanPoolIsSpawnedSafe(go))
+            {
+                LeanPool.Despawn(go);
+            }
+            else
+            {
+                _poolFallbackDestroyCount++;
+                UnityEngine.Object.Destroy(go);
+                PoolFallbackLogRateLimited("Destroyed non-pooled box instead of Despawn: " + go.name);
+            }
         }
-        catch { }
-        // DO NOT Destroy pooled objects.
+        catch (Exception)
+        {
+            // If Despawn throws due to teardown, fall back to Destroy.
+            _poolFallbackDestroyCount++;
+            try { UnityEngine.Object.Destroy(go); } catch { }
+            PoolFallbackLogRateLimited("Despawn threw; Destroy used instead: " + go.name);
+        }
     }
 }
 
@@ -456,7 +557,6 @@ public class NightShiftWorker
                     continue;
                 }
 
-                // RackSlots is List<RackSlot> in your build
                 if (_slotIdx >= rack.RackSlots.Count)
                 {
                     _rackIdx++;
@@ -575,7 +675,6 @@ public class NightShiftRuntime : MonoBehaviour
                 NightShiftPlugin.LastSeenDay = day;
 
                 NightShiftPlugin.LogI("DAY", "Day changed " + prev + " -> " + day);
-
                 NightShiftPlugin.TryScheduleForDay(day, "DayTransitionDetector");
             }
         }
