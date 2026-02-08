@@ -7,7 +7,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
-[BepInPlugin("von.autostowbox", "Auto Stow Box", "1.6.0")]
+[BepInPlugin("von.autostowbox", "Auto Stow Box", "1.6.2")]
 public class AutoStowBoxPlugin : BasePlugin
 {
     internal static ManualLogSource L;
@@ -18,7 +18,7 @@ public class AutoStowBoxPlugin : BasePlugin
         L = Log;
         _harmony = new Harmony("von.autostowbox");
         _harmony.PatchAll(typeof(Patches));
-        L.LogInfo("[AUTO-STOW] Loaded 1.6.0 (EZDelivery-style end: m_Box=null + PlaceBoxToRack + InteractionEnd)");
+        L.LogInfo("[AUTO-STOW] Loaded 1.6.2 (keypress-only, no timers; object-gated)");
     }
 
     private static class Patches
@@ -27,8 +27,35 @@ public class AutoStowBoxPlugin : BasePlugin
         [HarmonyPostfix]
         private static void PlayerInteraction_Update_Postfix(PlayerInteraction __instance)
         {
-            if (Input.GetKeyDown(KeyCode.L))
-                TryStowHeldBox(__instance);
+            // strictly tied to keypress
+            if (!Input.GetKeyDown(KeyCode.L))
+                return;
+
+            try
+            {
+                if (__instance == null) return;
+                if (!__instance.isActiveAndEnabled) return;
+                if (__instance.gameObject == null) return;
+                if (!__instance.gameObject.activeInHierarchy) return;
+            }
+            catch { return; }
+
+            // Instead of scene-name heuristics, only proceed if a BoxInteraction exists.
+            BoxInteraction bi = null;
+
+            try { bi = __instance.GetComponent<BoxInteraction>(); } catch { }
+            if (bi == null)
+            {
+                try { bi = UnityEngine.Object.FindObjectOfType<BoxInteraction>(); } catch { }
+            }
+
+            if (bi == null || !bi.enabled)
+            {
+                L.LogDebug("[AUTO-STOW] Key pressed but no enabled BoxInteraction found (likely menu/transition).");
+                return;
+            }
+
+            TryStowHeldBox(__instance, bi);
         }
     }
 
@@ -36,7 +63,6 @@ public class AutoStowBoxPlugin : BasePlugin
     {
         try
         {
-            // if available, this is best
             if (bi != null && bi.m_Box != null)
                 return bi.m_Box;
         }
@@ -44,7 +70,6 @@ public class AutoStowBoxPlugin : BasePlugin
 
         try
         {
-            // fallback: cast interactable
             var interactable = ((Interaction)bi).Interactable;
             if (interactable != null)
             {
@@ -92,7 +117,6 @@ public class AutoStowBoxPlugin : BasePlugin
                 var ps = mi.GetParameters();
                 if (ps == null || ps.Length != 1) continue;
 
-                // accept Interaction or base type
                 if (ps[0].ParameterType == typeof(Interaction) ||
                     ps[0].ParameterType.IsAssignableFrom(typeof(Interaction)))
                 {
@@ -141,8 +165,6 @@ public class AutoStowBoxPlugin : BasePlugin
 
     private static void ClearBoxInteractionField(BoxInteraction bi)
     {
-        // EZDelivery does Traverse.SetValue(null) on "m_Box".
-        // We can do it directly if field is accessible; otherwise reflection.
         try { bi.m_Box = null; return; } catch { }
 
         try
@@ -167,32 +189,29 @@ public class AutoStowBoxPlugin : BasePlugin
         catch { }
     }
 
-    private static void TryStowHeldBox(PlayerInteraction pi)
+    private static void TryStowHeldBox(PlayerInteraction pi, BoxInteraction bi)
     {
         try
         {
-            var playerGO = GameObject.Find("Player");
-            if (playerGO == null) return;
-
-            var bi = playerGO.GetComponent<BoxInteraction>();
-            if (bi == null) return;
-
-            // EZDelivery note: BI must be enabled else "magic invisible boxes"
-            if (!bi.enabled) return;
-
             var box = GetHeldBox(bi);
-            if (box == null) return;
+            if (box == null)
+            {
+                L.LogDebug("[AUTO-STOW] Key pressed but no held box detected.");
+                return;
+            }
 
-            // prevent repeated stow spam
             try { if (box.Racked) return; } catch { }
 
             var product = box.Product;
-            if (product == null) return;
+            if (product == null)
+            {
+                L.LogDebug("[AUTO-STOW] Held box has no product.");
+                return;
+            }
 
             int productId = product.ID;
             int boxId = box.BoxID;
 
-            // occupied check
             var emp = GetSingleton_Instance(typeof(EmployeeManager)) ?? GetNoktaSingleton_Instance(typeof(EmployeeManager));
             if (emp != null)
             {
@@ -210,7 +229,11 @@ public class AutoStowBoxPlugin : BasePlugin
 
             RackManager rm = null;
             try { rm = RackManager.Instance; } catch { }
-            if (rm == null) return;
+            if (rm == null)
+            {
+                L.LogDebug("[AUTO-STOW] RackManager.Instance was null.");
+                return;
+            }
 
             var restocker = new Restocker();
             var mgmt = new RestockerManagementData();
@@ -224,24 +247,17 @@ public class AutoStowBoxPlugin : BasePlugin
                 return;
             }
 
-            // Place like EZDelivery
             box.CloseBox(false);
             slot.AddBox(boxId, box);
             box.Racked = true;
 
-            // 1) m_Box = null (critical)
             ClearBoxInteractionField(bi);
 
-            // 2) RackManager.PlaceBoxToRack (if present)
-            // In EZDelivery it's Singleton.Instance.PlaceBoxToRack().
-            // In our environment, RackManager.Instance is the one we have.
             bool placedSignal = Call0(rm, "PlaceBoxToRack") || Call0(rm, "PlaceHeldBoxToRack");
 
-            // 3) PlayerInteraction.InteractionEnd((Interaction)bi) (critical store unlock)
             bool ended = CallInteraction(pi, "InteractionEnd", (Interaction)bi)
                       || CallInteraction(pi, "EndInteraction", (Interaction)bi);
 
-            // final cleanup (helps PocketBox not think you're still interacting)
             try { pi.CurrentInteractable = null; } catch { }
 
             L.LogInfo("[AUTO-STOW] Stowed ProductID=" + productId + " BoxID=" + boxId +
