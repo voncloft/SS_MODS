@@ -2,14 +2,14 @@ using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using Il2CppInterop.Runtime.Injection;
+using Lean.Pool;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-[BepInPlugin("von.nightshift.il2cpp", "NightShift (IL2CPP)", "2.3.8")]
+[BepInPlugin("von.nightshift.il2cpp", "NightShift (IL2CPP)", "2.3.4")]
 public class NightShiftPlugin : BasePlugin
 {
     internal static ManualLogSource L;
@@ -25,28 +25,27 @@ public class NightShiftPlugin : BasePlugin
     // Worker state
     internal static NightShiftWorker Worker;
 
-    // Tunables
+    // Tunables (SAFE DEFAULTS for Wine/Unity 6)
     internal const float RUN_DELAY_SECONDS = 6.0f;
 
-    // Time-slice limiter
+    // Backup limiter; time-slice is the real limiter.
     internal const int OPS_PER_FRAME = 50;
+
+    // Hard cap for overall worker lifetime (ms)
+    internal const int MAX_TOTAL_MS = 120000; // 2 minutes hard cap (prevents runaway)
+
+    // Per-frame CPU budget to prevent freezes
     internal const int FRAME_BUDGET_MS = 4;
 
-    // Hard caps
-    internal const int MAX_TOTAL_MS = 120000; // 2 minutes
     internal const int MAX_OUTER_LOOPS = 12;
-
-    // Cleanup safety caps
-    internal const int MAX_RACKS_TO_CLEAN = 2500;
 
     public override void Load()
     {
         L = Log;
 
         LogI("BOOT", "==================================================");
-        LogI("BOOT", "LOADED NightShift 2.3.8 @ " + DateTime.Now);
-        LogI("BOOT", "No LeanPool usage. Scene-safe runtime via polling.");
-        LogI("BOOT", "FRAME_BUDGET_MS=" + FRAME_BUDGET_MS + " OPS_PER_FRAME=" + OPS_PER_FRAME);
+        LogI("BOOT", "LOADED NightShift 2.3.4 @ " + DateTime.Now);
+        LogI("BOOT", "Time-sliced worker (FRAME_BUDGET_MS=" + FRAME_BUDGET_MS + "), OPS_PER_FRAME=" + OPS_PER_FRAME);
         LogI("BOOT", "==================================================");
 
         try
@@ -68,22 +67,6 @@ public class NightShiftPlugin : BasePlugin
     internal static void LogW(string tag, string msg) { try { L.LogWarning("[NS] [" + tag + "] " + msg); } catch { } }
     internal static void LogE(string tag, string msg) { try { L.LogError("[NS] [" + tag + "] " + msg); } catch { } }
 
-    internal static bool InGameplay()
-    {
-        // We can't reliably key off scene name across versions/mod packs.
-        // Instead: if these managers exist, we are in gameplay enough to touch stock/racks.
-        try
-        {
-            if (DayCycleManager.Instance == null) return false;
-            if (RackManager.Instance == null) return false;
-            if (DisplayManager.Instance == null) return false;
-            if (InventoryManager.Instance == null) return false;
-            if (IDManager.Instance == null) return false;
-            return true;
-        }
-        catch { return false; }
-    }
-
     internal static int SafeGetCurrentDay()
     {
         try
@@ -95,42 +78,8 @@ public class NightShiftPlugin : BasePlugin
         return -1;
     }
 
-    internal static void ResetDayDetector(string reason)
-    {
-        Primed = false;
-        LastSeenDay = int.MinValue;
-        LogI("DAY", "Reset detector (" + reason + ")");
-    }
-
-    internal static void AbortWorker(string reason)
-    {
-        try
-        {
-            if (Worker != null && Worker.State != NightShiftWorkerState.Idle)
-            {
-                LogW("RUN", "Abort requested: " + reason + " (state=" + Worker.State + ")");
-                Worker.ForceAbort(reason);
-            }
-        }
-        catch { }
-
-        Busy = false;
-    }
-
     internal static void TryScheduleForDay(int newDay, string reason)
     {
-        if (!NightShiftRuntime.SceneStable)
-        {
-            LogW("SCHED", "Blocked (scene not stable). day=" + newDay + " reason=" + reason);
-            return;
-        }
-
-        if (!InGameplay())
-        {
-            LogW("SCHED", "Blocked (not in gameplay managers). day=" + newDay + " reason=" + reason);
-            return;
-        }
-
         if (Busy) { LogW("SCHED", "Blocked (already running). newDay=" + newDay + " reason=" + reason); return; }
         if (newDay == LastProcessedDay) { LogI("SCHED", "Skip (already processed). day=" + newDay + " reason=" + reason); return; }
         if (Worker != null && Worker.State != NightShiftWorkerState.Idle) { LogW("SCHED", "Worker already active state=" + Worker.State); return; }
@@ -139,9 +88,11 @@ public class NightShiftPlugin : BasePlugin
         LogI("SCHED", "Scheduled day=" + newDay + " reason=" + reason + " runAt=" + Worker.RunAt);
     }
 
-    // IMPORTANT: DO NOT call LeanPool.Despawn here.
-    // Destroy-only is stable across Save->Menu->Continue and avoids "not spawned from a pool" problems.
-    internal static void SafeRemoveBoxGameObject(Box box)
+    // IMPORTANT: LeanPool.Despawn() can spam/freeze if object wasn't pooled.
+    // We use a safe fallback destroy if needed.
+    internal static int FallbackDestroyCount = 0;
+
+    internal static void SafeRemoveBox(Box box)
     {
         if (box == null) return;
 
@@ -150,7 +101,17 @@ public class NightShiftPlugin : BasePlugin
             var go = ((Component)box).gameObject;
             if (go == null) return;
 
-            UnityEngine.Object.Destroy(go);
+            // Try despawn first, but if it throws/log-spams, destroy instead.
+            try
+            {
+                LeanPool.Despawn(go);
+            }
+            catch
+            {
+                FallbackDestroyCount++;
+                UnityEngine.Object.Destroy(go);
+                LogW("POOL", "Destroyed non-pooled box instead of Despawn: " + go.name + " (fallbackDestroyCount=" + FallbackDestroyCount + ")");
+            }
         }
         catch { }
     }
@@ -212,9 +173,6 @@ public class NightShiftWorker
     // timing
     private Stopwatch _swTotal;
 
-    // abort reason
-    private string _abortReason;
-
     public NightShiftWorker(int day, string reason, float runAt)
     {
         Day = day;
@@ -223,31 +181,9 @@ public class NightShiftWorker
         State = NightShiftWorkerState.WaitingDelay;
     }
 
-    public void ForceAbort(string reason)
-    {
-        _abortReason = reason;
-        State = NightShiftWorkerState.Aborted;
-    }
-
-    private bool ManagersStillValid()
-    {
-        try
-        {
-            if (!NightShiftRuntime.SceneStable) return false;
-            if (!NightShiftPlugin.InGameplay()) return false;
-            return true;
-        }
-        catch { return false; }
-    }
-
     public void Tick(int opsBudget)
     {
-        if (!ManagersStillValid() && State != NightShiftWorkerState.WaitingDelay && State != NightShiftWorkerState.Idle)
-        {
-            NightShiftPlugin.LogW("RUN", "ABORT scene/manager instability detected. state=" + State);
-            State = NightShiftWorkerState.Aborted;
-        }
-
+        // Hard safety: if worker somehow runs too long, abort
         if (_swTotal != null && _swTotal.ElapsedMilliseconds > NightShiftPlugin.MAX_TOTAL_MS)
         {
             NightShiftPlugin.LogW("RUN", "ABORT hard cap MAX_TOTAL_MS=" + NightShiftPlugin.MAX_TOTAL_MS);
@@ -256,7 +192,6 @@ public class NightShiftWorker
 
         if (State == NightShiftWorkerState.WaitingDelay)
         {
-            if (!ManagersStillValid()) return;
             if (Time.unscaledTime < RunAt) return;
             State = NightShiftWorkerState.Init;
         }
@@ -273,6 +208,10 @@ public class NightShiftWorker
             _swTotal = Stopwatch.StartNew();
 
             NightShiftPlugin.LogI("RUN", "ENTER day=" + Day + " reason=" + Reason);
+            NightShiftPlugin.LogI("STEP0", "Snapshot RackManager=" + (_rackMgr != null)
+                + " DisplayManager=" + (_dispMgr != null)
+                + " InventoryManager=" + (_invMgr != null)
+                + " IDManager=" + (_idMgr != null));
 
             if (_rackMgr == null || _dispMgr == null || _invMgr == null || _idMgr == null)
             {
@@ -335,9 +274,11 @@ public class NightShiftWorker
             _displayIndex = 0;
 
             NightShiftPlugin.LogI("STEP1", "BEGIN day=" + Day + " products=" + _productIds.Count + " rackSlots=" + ScannedRackSlots);
+
             State = NightShiftWorkerState.Restock;
         }
 
+        // Time-slice per frame to prevent freezes
         var swFrame = Stopwatch.StartNew();
 
         if (State == NightShiftWorkerState.Restock)
@@ -346,15 +287,9 @@ public class NightShiftWorker
 
             while (ops < opsBudget)
             {
+                // yield to next frame if we used up our CPU slice
                 if (swFrame.ElapsedMilliseconds >= NightShiftPlugin.FRAME_BUDGET_MS)
                     return;
-
-                if (!ManagersStillValid())
-                {
-                    NightShiftPlugin.LogW("STEP1", "ABORT managers invalid mid-run.");
-                    State = NightShiftWorkerState.Aborted;
-                    break;
-                }
 
                 if (_outerLoop > NightShiftPlugin.MAX_OUTER_LOOPS)
                 {
@@ -457,8 +392,7 @@ public class NightShiftWorker
                                     rackSlot.TakeBoxFromRack();
                                     _invMgr.RemoveBox(box.Data);
 
-                                    // Remove GO (Destroy-only)
-                                    NightShiftPlugin.SafeRemoveBoxGameObject(box);
+                                    NightShiftPlugin.SafeRemoveBox(box);
 
                                     MovedBoxes++;
                                     MovedProducts += take;
@@ -499,29 +433,11 @@ public class NightShiftWorker
 
         if (State == NightShiftWorkerState.Cleanup)
         {
-            if (!ManagersStillValid())
-            {
-                NightShiftPlugin.LogW("STEP2", "ABORT managers invalid entering cleanup.");
-                State = NightShiftWorkerState.Aborted;
-            }
-
             if (_racks == null)
             {
                 NightShiftPlugin.LogI("STEP2", "BEGIN");
-
-                Rack[] found;
-                try { found = UnityEngine.Object.FindObjectsOfType<Rack>(); }
-                catch { found = new Rack[0]; }
-
-                if (found != null && found.Length > NightShiftPlugin.MAX_RACKS_TO_CLEAN)
-                {
-                    NightShiftPlugin.LogW("STEP2", "Skip cleanup: too many racks found=" + found.Length + " cap=" + NightShiftPlugin.MAX_RACKS_TO_CLEAN);
-                    _racks = new Rack[0];
-                }
-                else
-                {
-                    _racks = found ?? new Rack[0];
-                }
+                try { _racks = Resources.FindObjectsOfTypeAll<Rack>(); }
+                catch { _racks = new Rack[0]; }
 
                 _rackIdx = 0;
                 _slotIdx = 0;
@@ -532,15 +448,9 @@ public class NightShiftWorker
 
             while (ops < opsBudget)
             {
+                // yield per-frame
                 if (swFrame.ElapsedMilliseconds >= NightShiftPlugin.FRAME_BUDGET_MS)
                     return;
-
-                if (!ManagersStillValid())
-                {
-                    NightShiftPlugin.LogW("STEP2", "ABORT managers invalid mid-cleanup.");
-                    State = NightShiftWorkerState.Aborted;
-                    break;
-                }
 
                 if (_rackIdx >= _racks.Length)
                 {
@@ -594,7 +504,7 @@ public class NightShiftWorker
                 try { slot.m_Boxes.Remove(box); } catch { }
                 try { _invMgr.RemoveBox(box.Data); } catch { }
 
-                NightShiftPlugin.SafeRemoveBoxGameObject(box);
+                NightShiftPlugin.SafeRemoveBox(box);
 
                 RemovedEmptyBoxes++;
                 ops++;
@@ -605,7 +515,7 @@ public class NightShiftWorker
 
         if (State == NightShiftWorkerState.Done || State == NightShiftWorkerState.Aborted)
         {
-            try { if (_swTotal != null) _swTotal.Stop(); } catch { }
+            try { _swTotal.Stop(); } catch { }
 
             if (State == NightShiftWorkerState.Done)
             {
@@ -620,7 +530,6 @@ public class NightShiftWorker
             else
             {
                 NightShiftPlugin.LogW("RUN", "ABORTED day=" + Day + " reason=" + Reason
-                    + " abortReason=" + (_abortReason ?? "(none)")
                     + " total_ms=" + (_swTotal != null ? _swTotal.ElapsedMilliseconds : -1));
             }
 
@@ -636,87 +545,22 @@ public class NightShiftRuntime : MonoBehaviour
     private float _nextBeat;
     private float _nextDayCheck;
 
-    // Scene stability gate: pause worker + day detector briefly after changes.
-    internal static bool SceneStable;
-    internal static float StableAt;
-
-    // Polling-based scene change detection (IL2CPP-safe)
-    private int _lastActiveSceneHandle;
-    private string _lastActiveSceneName;
-    private int _lastSceneCount;
-
     private void Start()
     {
         NightShiftPlugin.LogI("RT", "Start. Heartbeat 10s. DayCheck 0.5s.");
-
         _nextBeat = Time.unscaledTime + 10f;
         _nextDayCheck = Time.unscaledTime + 0.5f;
-
-        var s = SceneManager.GetActiveScene();
-        _lastActiveSceneHandle = s.handle;
-        _lastActiveSceneName = s.name;
-        _lastSceneCount = SceneManager.sceneCount;
-
-        // Start unstable briefly so we don't touch managers during initial load.
-        SceneStable = false;
-        StableAt = Time.unscaledTime + 3.0f;
-        NightShiftPlugin.LogI("SCENE", "Boot unstable. StableAt=" + StableAt + " active=" + (_lastActiveSceneName ?? "(null)"));
-    }
-
-    private void MarkSceneUnstable(string why)
-    {
-        NightShiftPlugin.AbortWorker("Scene transition: " + why);
-        NightShiftPlugin.ResetDayDetector("Scene transition: " + why);
-
-        SceneStable = false;
-        StableAt = Time.unscaledTime + 3.0f;
-        NightShiftPlugin.LogI("SCENE", "Unstable (" + why + "). StableAt=" + StableAt);
     }
 
     private void Update()
     {
-        // Detect scene changes without subscribing to SceneManager events.
-        try
-        {
-            var s = SceneManager.GetActiveScene();
-            int scCount = SceneManager.sceneCount;
-
-            if (s.handle != _lastActiveSceneHandle)
-            {
-                string oldName = _lastActiveSceneName ?? "(null)";
-                string newName = s.name ?? "(null)";
-                _lastActiveSceneHandle = s.handle;
-                _lastActiveSceneName = newName;
-
-                MarkSceneUnstable("activeScene handle change " + oldName + " -> " + newName);
-            }
-            else if (scCount != _lastSceneCount)
-            {
-                int prev = _lastSceneCount;
-                _lastSceneCount = scCount;
-                MarkSceneUnstable("sceneCount change " + prev + " -> " + scCount + " active=" + (_lastActiveSceneName ?? "(null)"));
-            }
-        }
-        catch
-        {
-            MarkSceneUnstable("exception while polling scenes");
-        }
-
-        if (!SceneStable && Time.unscaledTime >= StableAt)
-        {
-            SceneStable = true;
-            NightShiftPlugin.LogI("SCENE", "Stable now. t=" + Time.unscaledTime + " active=" + SceneManager.GetActiveScene().name);
-        }
-
         if (Time.unscaledTime >= _nextBeat)
         {
             _nextBeat = Time.unscaledTime + 10f;
-            NightShiftPlugin.LogI("RT", "Heartbeat t=" + Time.unscaledTime + " stable=" + SceneStable + " scene=" + SceneManager.GetActiveScene().name);
+            NightShiftPlugin.LogI("RT", "Heartbeat t=" + Time.unscaledTime);
         }
 
-        // Run worker only when stable and gameplay managers exist.
-        if (SceneStable && NightShiftPlugin.InGameplay() &&
-            NightShiftPlugin.Worker != null && NightShiftPlugin.Worker.State != NightShiftWorkerState.Idle)
+        if (NightShiftPlugin.Worker != null && NightShiftPlugin.Worker.State != NightShiftWorkerState.Idle)
         {
             NightShiftPlugin.Worker.Tick(NightShiftPlugin.OPS_PER_FRAME);
         }
@@ -724,9 +568,6 @@ public class NightShiftRuntime : MonoBehaviour
         if (Time.unscaledTime >= _nextDayCheck)
         {
             _nextDayCheck = Time.unscaledTime + 0.5f;
-
-            if (!SceneStable) return;
-            if (!NightShiftPlugin.InGameplay()) return;
 
             int day = NightShiftPlugin.SafeGetCurrentDay();
             if (day < 0) return;
