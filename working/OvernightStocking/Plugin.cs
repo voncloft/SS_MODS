@@ -64,6 +64,8 @@ public sealed class HotkeyRunner : MonoBehaviour
     private static HotkeyRunner _instance;
     private bool _pendingRestock;
     private static bool _pendingSceneLoadRestock;
+    private static readonly float[] TimedRestockQueue = new float[16];
+    private static int _timedRestockCount;
     private int _lastSceneBuildIndex = int.MinValue;
 
     public HotkeyRunner(IntPtr ptr) : base(ptr)
@@ -113,6 +115,8 @@ public sealed class HotkeyRunner : MonoBehaviour
                 VerboseFileLog.Write($"Scene-change restock armed (buildIndex={currentSceneBuildIndex})");
             }
         }
+
+        DrainTimedRestockQueue();
 
         if (_isRestocking)
         {
@@ -166,6 +170,21 @@ public sealed class HotkeyRunner : MonoBehaviour
     {
         _pendingSceneLoadRestock = true;
         VerboseFileLog.Write($"Auto restock queued for next scene load (reason={reason})");
+    }
+
+    internal static void RequestAutoRestockDelayed(string reason, float delaySeconds = 2.5f)
+    {
+        float at = Time.unscaledTime + Mathf.Max(0.25f, delaySeconds);
+        EnqueueTimedRestock(at, reason);
+    }
+
+    internal static void RequestAutoRestockBurst(string reason)
+    {
+        // Queue multiple passes because game systems can initialize rack/inventory over several seconds.
+        RequestAutoRestockAfterSceneLoad(reason + ":scene");
+        RequestAutoRestockDelayed(reason + ":t+2.5", 2.5f);
+        RequestAutoRestockDelayed(reason + ":t+6.0", 6.0f);
+        RequestAutoRestockDelayed(reason + ":t+12.0", 12.0f);
     }
 
     private void BeginRestock()
@@ -318,7 +337,22 @@ public sealed class HotkeyRunner : MonoBehaviour
         }
 
         int before = GetVisibleProductCount(slot);
-        VerboseFileLog.Write($"TryFillSlot start productId={productId} before={before} full={slot.Full}");
+        string productName = productSO.ProductName ?? productSO.TempProductName ?? "unknown";
+        string displayType = "unknown";
+        try
+        {
+            var display = slot.Display;
+            if (display != null)
+            {
+                displayType = display.DisplayType.ToString();
+            }
+        }
+        catch
+        {
+        }
+
+        VerboseFileLog.Write(
+            $"TryFillSlot start productId={productId} productName={productName} displayType={displayType} before={before} full={slot.Full}");
 
         if (slot.m_Products == null)
         {
@@ -363,13 +397,26 @@ public sealed class HotkeyRunner : MonoBehaviour
 
             try
             {
-                slot.m_TransformCalculator.SetProductSo(productSO);
-                spawned.transform.localPosition = slot.m_TransformCalculator.GetPosition(i);
-                spawned.transform.localRotation = slot.m_TransformCalculator.GetRotation(i);
-                spawned.transform.localScale = Vector3.one * productSO.GridLayoutInStorage.scaleMultiplier;
-                slot.m_Products.Add(spawned);
-                data.FirstItemCount = currentCount + 1;
-                currentCount++;
+                // Let the game place products using its own slot logic (important for fridges/freezers).
+                slot.AddProduct(productId, spawned);
+
+                int newCount = GetVisibleProductCount(slot);
+                if (newCount <= currentCount)
+                {
+                    VerboseFileLog.Write(
+                        $"TryFillSlot stop: AddProduct did not increase count productId={productId} current={currentCount} new={newCount}");
+                    try
+                    {
+                        LeanPool.Despawn(spawned.gameObject);
+                    }
+                    catch
+                    {
+                    }
+                    break;
+                }
+
+                data.FirstItemCount = newCount;
+                currentCount = newCount;
                 adds++;
             }
             catch (Exception positionEx)
@@ -540,6 +587,56 @@ public sealed class HotkeyRunner : MonoBehaviour
             return 0;
         }
     }
+
+    private static void EnqueueTimedRestock(float atTime, string reason)
+    {
+        if (_timedRestockCount >= TimedRestockQueue.Length)
+        {
+            // Keep newest request and drop the oldest queued timer if saturated.
+            for (int i = 1; i < _timedRestockCount; i++)
+            {
+                TimedRestockQueue[i - 1] = TimedRestockQueue[i];
+            }
+
+            _timedRestockCount = TimedRestockQueue.Length - 1;
+        }
+
+        TimedRestockQueue[_timedRestockCount] = atTime;
+        _timedRestockCount++;
+        VerboseFileLog.Write($"Auto restock queued by timer (reason={reason}, at={atTime:F3}, queued={_timedRestockCount})");
+    }
+
+    private void DrainTimedRestockQueue()
+    {
+        if (_timedRestockCount <= 0)
+        {
+            return;
+        }
+
+        bool armed = false;
+        int write = 0;
+
+        for (int i = 0; i < _timedRestockCount; i++)
+        {
+            float at = TimedRestockQueue[i];
+            if (Time.unscaledTime >= at)
+            {
+                armed = true;
+                VerboseFileLog.Write($"Timed restock matured at t={Time.unscaledTime:F3} target={at:F3}");
+                continue;
+            }
+
+            TimedRestockQueue[write] = at;
+            write++;
+        }
+
+        _timedRestockCount = write;
+        if (armed)
+        {
+            _pendingRestock = true;
+            VerboseFileLog.Write($"Timed restock armed at t={Time.unscaledTime:F3}, remaining={_timedRestockCount}");
+        }
+    }
 }
 
 [HarmonyPatch(typeof(DayCycleManager), "FinishTheDay")]
@@ -550,11 +647,45 @@ internal static class DayCyclePatches
     {
         try
         {
-            HotkeyRunner.RequestAutoRestockAfterSceneLoad("FinishTheDay");
+            HotkeyRunner.RequestAutoRestockBurst("DayCycleManager.FinishTheDay");
         }
         catch (Exception ex)
         {
             VerboseFileLog.Write($"FinishTheDay patch error: {ex}");
+        }
+    }
+}
+
+[HarmonyPatch(typeof(DayCycleManager), "StartNextDay")]
+internal static class DayCycleStartPatches
+{
+    [HarmonyPostfix]
+    private static void PostfixStartNextDay()
+    {
+        try
+        {
+            HotkeyRunner.RequestAutoRestockBurst("DayCycleManager.StartNextDay");
+        }
+        catch (Exception ex)
+        {
+            VerboseFileLog.Write($"StartNextDay patch error: {ex}");
+        }
+    }
+}
+
+[HarmonyPatch(typeof(NextDayInteraction), "FinishTheDay")]
+internal static class NextDayInteractionPatches
+{
+    [HarmonyPrefix]
+    private static void PrefixFinishTheDay()
+    {
+        try
+        {
+            HotkeyRunner.RequestAutoRestockBurst("NextDayInteraction.FinishTheDay");
+        }
+        catch (Exception ex)
+        {
+            VerboseFileLog.Write($"NextDayInteraction.FinishTheDay patch error: {ex}");
         }
     }
 }
