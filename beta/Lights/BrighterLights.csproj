@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyName>NightShiftPlugin</AssemblyName>
+    <AssemblyName>BrighterLights</AssemblyName>
     <RootNamespace>NightShift</RootNamespace>
     <LangVersion>latest</LangVersion>
 
@@ -73,6 +73,11 @@
 
     <Reference Include="LeanPool">
       <HintPath>$(InteropDir)/LeanPool.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <Reference Include="PhotonUnityNetworking">
+      <HintPath>$(InteropDir)/PhotonUnityNetworking.dll</HintPath>
       <Private>false</Private>
     </Reference>
 
